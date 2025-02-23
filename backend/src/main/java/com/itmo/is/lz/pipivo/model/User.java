@@ -102,6 +102,9 @@ public class User {
     @JoinColumn(name = "roles_id", referencedColumnName = "id")
     private Role role;
 
+    @Column(name = "avatar_path")
+    private String avatarPath;
+
     @Column(name = "created_at", updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date created_at;
