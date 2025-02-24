@@ -70,9 +70,8 @@ public class User {
     private Set<Beer> recommendationBeers;
 
 
-    @NotNull( message = "User email cannot be null")
-    @NotBlank( message = "User email cannot be blank")
-    @Column(name="email", nullable = false)
+//    @NotBlank( message = "User email cannot be blank")
+    @Column(name="email")
     private String email;
 
     @NotNull( message = "User password cannot be null")
@@ -80,14 +79,12 @@ public class User {
     @Column(name="password", nullable = false)
     private String password;
 
-    @NotNull( message = "User first name cannot be null")
-    @NotBlank( message = "User first name cannot be blank")
-    @Column(name="first_name", nullable = false)
+//    @NotBlank( message = "User first name cannot be blank")
+    @Column(name="first_name")
     private String firstName;
 
-    @NotNull( message = "User last name cannot be null")
-    @NotBlank( message = "User last name cannot be blank")
-    @Column(name="last_name", nullable = false)
+//    @NotBlank( message = "User last name cannot be blank")
+    @Column(name="last_name")
     private String lastName;
 
     @Column(name="country")
@@ -96,9 +93,8 @@ public class User {
     @Column(name="preferred_language")
     private String prefLanguage;
 
-    @NotNull( message = "User role cannot be null")
-    @NotBlank( message = "User role cannot be blank")
-    @OneToOne(cascade = CascadeType.ALL)
+    @NotNull(message = "User role cannot be null")
+    @ManyToOne
     @JoinColumn(name = "roles_id", referencedColumnName = "id")
     private Role role;
 
