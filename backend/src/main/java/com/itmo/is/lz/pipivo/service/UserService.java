@@ -1,9 +1,12 @@
 package com.itmo.is.lz.pipivo.service;
 
 import com.itmo.is.lz.pipivo.model.User;
+import com.itmo.is.lz.pipivo.repository.FavouriteBeerRepository;
 import com.itmo.is.lz.pipivo.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.elasticsearch.ResourceNotFoundException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
@@ -14,6 +17,7 @@ import java.util.ArrayList;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final FavouriteBeerRepository favouriteBeerRepository;
 
     public UserDetailsService userDetailsService() {
         return this::loadUserByUsername;
@@ -41,4 +45,45 @@ public class UserService {
     public User save(User user) {
         return userRepository.save(user);
     }
+
+    @Transactional
+    public void addBeerToFavourite(Long beerId) {
+        String username = getCurrentUsername();
+        User user = userRepository.findByName(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (favouriteBeerRepository.exists(user.getId(), beerId)) {
+            System.out.println("Beer "+ beerId+ " is already in favourites for user "+ user.getId());
+            return;
+        }
+
+        favouriteBeerRepository.addBeerToFavourites(user.getId(), beerId);
+        System.out.println("Beer "+ beerId+ " added in favourites for user "+ user.getId());
+    }
+
+    @Transactional
+    public void removeBeerFromFavourite(Long beerId) {
+        String username = getCurrentUsername();
+        User user = userRepository.findByName(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!favouriteBeerRepository.exists(user.getId(), beerId)) {
+            System.out.println("Beer "+ beerId+ " is already isn't in favourites for user "+ user.getId());
+            return;
+        }
+
+        favouriteBeerRepository.removeBeerFromFavourites(user.getId(), beerId);
+        System.out.println("Beer "+ beerId+ " deleted from favourites for user "+ user.getId());
+    }
+
+    private String getCurrentUsername() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal instanceof UserDetails) {
+            return ((UserDetails) principal).getUsername();
+        } else {
+            return principal.toString();
+        }
+    }
+
+
 }
