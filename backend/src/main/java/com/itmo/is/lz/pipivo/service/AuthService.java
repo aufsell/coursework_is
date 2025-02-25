@@ -6,6 +6,8 @@ import com.itmo.is.lz.pipivo.dto.UserRegistrationResponse;
 import com.itmo.is.lz.pipivo.model.User;
 import com.itmo.is.lz.pipivo.repository.RoleRepository;
 import com.itmo.is.lz.pipivo.repository.UserRepository;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -16,19 +18,17 @@ import org.springframework.stereotype.Service;
 @Service
 public class AuthService {
 
+    private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final AuthenticationManager authenticationManager;
     private final RoleRepository roleRepository;
-    private final JwtService jwtService;
     private final UserService userService;
 
-    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, RoleRepository roleRepository, JwtService jwtService, UserService userService) {
+    public AuthService(AuthenticationManager authenticationManager, UserRepository userRepository, PasswordEncoder passwordEncoder, RoleRepository roleRepository, UserService userService) {
+        this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
-        this.authenticationManager = authenticationManager;
         this.roleRepository = roleRepository;
-        this.jwtService = jwtService;
         this.userService = userService;
     }
 
@@ -47,17 +47,20 @@ public class AuthService {
         return new UserRegistrationResponse(user.getId(), user.getName(), user.getRole().getName(), null);
     }
 
-    public UserRegistrationResponse signIn(SignInRequestDTO request) {
+
+    public UserRegistrationResponse signIn(SignInRequestDTO request, HttpServletRequest httpRequest) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
         );
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        String jwtToken = jwtService.generateJwtToken(request.getUsername());
+
+        HttpSession session = httpRequest.getSession(true);
+        session.setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
+
         User user = userRepository.findByName(request.getUsername())
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        System.out.println("User: " + user.getName() + " Role: " + user.getRole().getName());
 
-        return new UserRegistrationResponse(user.getId(), user.getName(), user.getRole().getName(), jwtToken);
+        return new UserRegistrationResponse(user.getId(), user.getName(), user.getRole().getName(), null);
     }
 }
