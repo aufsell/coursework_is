@@ -24,11 +24,10 @@ public class Review {
     private Long id;
 
     @NotNull(message = "Rating cannot be null")
-    @NotBlank(message = "Rating cannot be blank")
     @Min(0)
     @Max(5)
     @Column(name="rating", nullable = false)
-    private Integer rating;
+    private Float rating;
 
     @ManyToMany(mappedBy = "reviews")
     private Set<User> users;
