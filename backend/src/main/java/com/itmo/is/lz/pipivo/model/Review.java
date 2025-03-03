@@ -37,7 +37,7 @@ public class Review {
     @Column(name="comment", nullable = false)
     private String comment;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name="beer_reviewed_id", nullable = false)
     @NotNull(message = "Beer cannot be null")
     private Beer beer;
