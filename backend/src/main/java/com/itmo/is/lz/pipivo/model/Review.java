@@ -24,11 +24,10 @@ public class Review {
     private Long id;
 
     @NotNull(message = "Rating cannot be null")
-    @NotBlank(message = "Rating cannot be blank")
     @Min(0)
     @Max(5)
     @Column(name="rating", nullable = false)
-    private Integer rating;
+    private Float rating;
 
     @ManyToMany(mappedBy = "reviews")
     private Set<User> users;
@@ -38,7 +37,7 @@ public class Review {
     @Column(name="comment", nullable = false)
     private String comment;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name="beer_reviewed_id", nullable = false)
     @NotNull(message = "Beer cannot be null")
     private Beer beer;
@@ -49,6 +48,11 @@ public class Review {
 
     @PrePersist
     protected void onCreate() {
+        created_at = new Date();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
         created_at = new Date();
     }
 }
