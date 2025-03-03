@@ -3,20 +3,23 @@ package com.itmo.is.lz.pipivo.service;
 import com.itmo.is.lz.pipivo.dto.BeerDTO;
 import com.itmo.is.lz.pipivo.model.Beer;
 import com.itmo.is.lz.pipivo.repository.BeerRepository;
+import com.itmo.is.lz.pipivo.repository.FavouriteBeerRepository;
 import com.itmo.is.lz.pipivo.specification.BeerSpecification;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 public class BeerService {
-    private BeerRepository beerRepository;
-    public BeerService(BeerRepository beerRepository) {
-        this.beerRepository = beerRepository;
-    }
+    private final BeerRepository beerRepository;
+    private final FavouriteBeerRepository favouriteBeerRepository;
+
 
     public BeerDTO getBeerById(Long beerId) {
         BeerDTO beerDTO = beerRepository.findById(beerId)
@@ -52,5 +55,15 @@ public class BeerService {
                         beer.getFermentationType(), beer.getSrm(), beer.getIbu(),
                         beer.getAbv(), beer.getOg(), beer.getCountry(), beer.getImagePath())
         );
+    }
+
+    public List<BeerDTO> getFavouriteByUserId(Long userId) {
+        List<Long> beerIds = favouriteBeerRepository.getFavouriteBeerIdsByUserId(userId);
+        if (beerIds.isEmpty()) {
+            return List.of();
+        }
+
+        List<Beer> beers = beerRepository.findAllById(beerIds);
+        return beers.stream().map(this::convertToDTO).toList();
     }
 }
