@@ -93,4 +93,22 @@ public class ReviewsService {
         review.setCreated_at(new Date());
         reviewsRepository.save(review);
     }
+
+    @Transactional
+    public void deleteReview(Long reviewId) {
+        if (!canDeleteReview(reviewId)) {
+            throw new RuntimeException("You can't delete this review");
+        }
+        userReviewsRepository.deleteUserReviewByReviewId(reviewId);
+        reviewsRepository.deleteById(reviewId);
+    }
+
+    public Boolean canDeleteReview(Long reviewId) {
+        String userName = userService.getCurrentUsername();
+        User user = userService.getByUsername(userName);
+        Review review = reviewsRepository.findById(reviewId)
+                .orElseThrow(() -> new RuntimeException("Review with id " + reviewId + " was not found."));
+        boolean isAdmin = user.getRole().getName().equals("ADMIN");
+        return ((user.getId().equals(getUser(review).getId())) || isAdmin);
+    }
 }

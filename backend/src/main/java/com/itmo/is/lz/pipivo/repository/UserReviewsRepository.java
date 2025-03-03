@@ -24,4 +24,11 @@ public class UserReviewsRepository {
                 .setParameter("review_id", id)
                 .getSingleResult();
     }
+
+    @Transactional
+    public void deleteUserReviewByReviewId(Long reviewId) {
+        entityManager.createNativeQuery("DELETE FROM review_user WHERE review_id = :review_id")
+                .setParameter("review_id", reviewId)
+                .executeUpdate();
+    }
 }
