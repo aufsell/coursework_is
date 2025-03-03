@@ -76,7 +76,7 @@ public class UserService {
         System.out.println("Beer "+ beerId+ " deleted from favourites for user "+ user.getId());
     }
 
-    private String getCurrentUsername() {
+    public String getCurrentUsername() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (principal instanceof UserDetails) {
             return ((UserDetails) principal).getUsername();
