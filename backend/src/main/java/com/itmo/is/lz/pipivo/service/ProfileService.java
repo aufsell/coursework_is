@@ -32,4 +32,16 @@ public class ProfileService {
         profileDTO.setAvatarPath(user.getAvatarPath());
         return profileDTO;
     }
+
+    public ProfileDTO updateProfile(Long userId, ProfileDTO profileDTO) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        user.setFirstName(profileDTO.getFirstName());
+        user.setLastName(profileDTO.getLastName());
+        user.setCountry(profileDTO.getCountry());
+        user.setEmail(profileDTO.getEmail());
+        user.setPrefLanguage(profileDTO.getPrefLanguage());
+        userRepository.save(user);
+        return convertToDTO(user);
+    }
 }

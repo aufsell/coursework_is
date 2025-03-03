@@ -5,10 +5,7 @@ import com.itmo.is.lz.pipivo.service.ProfileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -21,5 +18,11 @@ public class UserProfileController {
     public ResponseEntity<ProfileDTO> getProfile(@PathVariable Long userId) {
         ProfileDTO profileDTO = profileService.getProfile(userId);
         return ResponseEntity.status(HttpStatus.OK).body(profileDTO);
+    }
+
+    @PutMapping("/{userId}")
+    public ResponseEntity<Void> updateProfile(@PathVariable Long userId, @RequestBody ProfileDTO profileDTO) {
+        profileService.updateProfile(userId, profileDTO);
+        return ResponseEntity.ok().build();
     }
 }
