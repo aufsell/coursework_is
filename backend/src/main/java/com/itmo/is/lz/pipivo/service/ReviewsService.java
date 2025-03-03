@@ -67,4 +67,19 @@ public class ReviewsService {
         );
     }
 
+    public Page<ReviewDTO> getReviewsByUserId(Long userId, Pageable pageable, Map<String, String> filters) {
+        Specification<Review> spec = ReviewsSpecification.withFilters(filters, null, userId);
+
+        return reviewsRepository.findAll(spec, pageable).map(review ->
+                new ReviewDTO(
+                        review.getId(),
+                        review.getRating(),
+                        review.getComment(),
+                        review.getBeer().getId(),
+                        review.getBeer().getImagePath(),
+                        review.getCreated_at().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime(),
+                        new ProfileDTO(getUser(review))
+                )
+        );
+    }
 }

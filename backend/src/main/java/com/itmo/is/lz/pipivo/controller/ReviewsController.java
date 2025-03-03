@@ -30,4 +30,10 @@ public class ReviewsController {
         return ResponseEntity.ok(reviews);
     }
 
+    @GetMapping("/user/{userId}")
+    public ResponseEntity getReviewsByUserId(@PathVariable Long userId, Pageable pageable, @RequestParam Map<String, String> filters) {
+        Page<ReviewDTO> reviews = reviewsService.getReviewsByUserId(userId, pageable, filters);
+        return ResponseEntity.ok(reviews);
+    }
+
 }

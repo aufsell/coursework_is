@@ -1,6 +1,7 @@
 package com.itmo.is.lz.pipivo.specification;
 
 import com.itmo.is.lz.pipivo.model.Review;
+import jakarta.persistence.criteria.Join;
 import org.springframework.data.jpa.domain.Specification;
 
 import jakarta.persistence.criteria.Predicate;
@@ -18,7 +19,8 @@ public class ReviewsSpecification {
             }
 
             if (userId != null) {
-                predicates.add(criteriaBuilder.equal(root.get("user").get("id"), userId));
+                Join<Object, Object> userJoin = root.join("users");
+                predicates.add(criteriaBuilder.equal(userJoin.get("id"), userId));
             }
 
             filters.forEach((key, value) -> {
