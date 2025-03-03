@@ -59,4 +59,12 @@ public class SubscribedUsersRepository {
                 .setParameter("followedUserId", subscribedUserId)
                 .executeUpdate();
     }
+
+    public List<Long> getFollowingUserIdsByUserId(Long userId) {
+        return entityManager.createNativeQuery(
+                        "SELECT user_id FROM subscribed_users WHERE followed_user = :userId"
+                )
+                .setParameter("userId", userId)
+                .getResultList();
+    }
 }

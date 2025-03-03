@@ -53,4 +53,11 @@ public class UserProfileController {
         profileService.unsubscribe(SubscribedUserId);
         return ResponseEntity.ok().build();
     }
+
+//    Кто подписан на User
+    @GetMapping("/subscribed/{userId}")
+    public ResponseEntity<List<ProfileDTO>> getSubscribed(@PathVariable Long userId) {
+        List<ProfileDTO> subscribed = profileService.getSubscribed(userId);
+        return ResponseEntity.ok(subscribed);
+    }
 }

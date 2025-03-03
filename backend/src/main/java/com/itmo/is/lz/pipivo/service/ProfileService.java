@@ -98,4 +98,12 @@ public class ProfileService {
         }
         subscribedUsersRepository.removeFollowedUser(user.getId(), subscribedUserId);
     }
+
+    public List<ProfileDTO> getSubscribed(Long userId) {
+        userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        List<Long> subscribedId = subscribedUsersRepository.getFollowingUserIdsByUserId(userId);
+        List<User> subscribed = userRepository.findAllById(subscribedId);
+        return subscribed.stream().map(this::convertToDTO).collect(Collectors.toList());
+    }
 }
