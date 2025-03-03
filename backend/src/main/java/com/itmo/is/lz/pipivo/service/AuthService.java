@@ -44,7 +44,7 @@ public class AuthService {
                 .orElseThrow(() -> new RuntimeException("Role not found")));
         userService.create(user);
 
-        return new UserRegistrationResponse(user.getId(), user.getName(), user.getRole().getName(), null);
+        return new UserRegistrationResponse(user.getId(), user.getName(), user.getRole().getName());
     }
 
 
@@ -61,6 +61,6 @@ public class AuthService {
         User user = userRepository.findByName(request.getUsername())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        return new UserRegistrationResponse(user.getId(), user.getName(), user.getRole().getName(), null);
+        return new UserRegistrationResponse(user.getId(), user.getName(), user.getRole().getName());
     }
 }
