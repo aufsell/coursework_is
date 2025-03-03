@@ -41,4 +41,10 @@ public class UserProfileController {
         Long count = profileService.getSubscribersCount(userId);
         return ResponseEntity.ok(count);
     }
+
+    @PostMapping("/subscribers/{SubscribedUserId}")
+    public ResponseEntity<Void> subscribe(@PathVariable Long SubscribedUserId) {
+        profileService.subscribe(SubscribedUserId);
+        return ResponseEntity.ok().build();
+    }
 }

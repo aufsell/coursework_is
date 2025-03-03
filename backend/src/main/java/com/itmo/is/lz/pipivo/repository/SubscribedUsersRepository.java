@@ -29,4 +29,24 @@ public class SubscribedUsersRepository {
                 .getSingleResult();
     }
 
+    @Transactional
+    public void addFollowedUser(Long id, Long subscribleUserId) {
+        entityManager.createNativeQuery(
+                        "INSERT INTO subscribed_users (user_id, followed_user) VALUES (:userId, :followedUserId)"
+                )
+                .setParameter("userId", id)
+                .setParameter("followedUserId", subscribleUserId)
+                .executeUpdate();
+    }
+
+    public boolean existsFollowedUser(Long id, Long subscribleUserId) {
+        Number count = (Number) entityManager.createNativeQuery(
+                        "SELECT COUNT(*) FROM subscribed_users WHERE user_id = :userId AND followed_user = :followedUserId"
+                )
+                .setParameter("userId", id)
+                .setParameter("followedUserId", subscribleUserId)
+                .getSingleResult();
+
+        return count.longValue() > 0;
+    }
 }

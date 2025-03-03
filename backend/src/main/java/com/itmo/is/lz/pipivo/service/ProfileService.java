@@ -4,6 +4,7 @@ import com.itmo.is.lz.pipivo.dto.ProfileDTO;
 import com.itmo.is.lz.pipivo.model.User;
 import com.itmo.is.lz.pipivo.repository.SubscribedUsersRepository;
 import com.itmo.is.lz.pipivo.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -63,5 +64,22 @@ public class ProfileService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         return subscribedUsersRepository.getCountFollowedUserIdsByUserId(userId);
+    }
+
+    @Transactional
+    public void subscribe(Long subscribleUserId) {
+
+        String username = userService.getCurrentUsername();
+        User user = userRepository.findByName(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        if(subscribleUserId.equals(user.getId())) {
+            System.out.println("User can't subscribe to himself");
+            throw new RuntimeException("User can't subscribe to himself");
+        }
+        if(subscribedUsersRepository.existsFollowedUser(user.getId(), subscribleUserId)) {
+            System.out.println("User "+ user.getId()+ " is already subscribed to user "+ subscribleUserId);
+            throw new RuntimeException("User "+ user.getId()+ " is already subscribed to user "+ subscribleUserId);
+        }
+        subscribedUsersRepository.addFollowedUser(user.getId(), subscribleUserId);
     }
 }
