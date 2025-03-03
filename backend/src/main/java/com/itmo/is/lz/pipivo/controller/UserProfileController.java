@@ -1,11 +1,14 @@
 package com.itmo.is.lz.pipivo.controller;
 
+import com.itmo.is.lz.pipivo.dto.BeerDTO;
 import com.itmo.is.lz.pipivo.dto.ProfileDTO;
 import com.itmo.is.lz.pipivo.service.ProfileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -24,5 +27,12 @@ public class UserProfileController {
     public ResponseEntity<Void> updateProfile(@PathVariable Long userId, @RequestBody ProfileDTO profileDTO) {
         profileService.updateProfile(userId, profileDTO);
         return ResponseEntity.ok().build();
+    }
+
+//    На кого подписан User
+    @GetMapping("/subscribers/{userId}")
+    public ResponseEntity<List<ProfileDTO>> getSubscribers(@PathVariable Long userId) {
+        List<ProfileDTO> subscribers = profileService.getSubscribers(userId);
+        return ResponseEntity.ok(subscribers);
     }
 }
