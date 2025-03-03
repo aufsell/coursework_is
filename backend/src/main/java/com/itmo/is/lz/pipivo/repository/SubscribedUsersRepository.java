@@ -49,4 +49,14 @@ public class SubscribedUsersRepository {
 
         return count.longValue() > 0;
     }
+
+    @Transactional
+    public void removeFollowedUser(Long id, Long subscribedUserId) {
+        entityManager.createNativeQuery(
+                        "DELETE FROM subscribed_users WHERE user_id = :userId AND followed_user = :followedUserId"
+                )
+                .setParameter("userId", id)
+                .setParameter("followedUserId", subscribedUserId)
+                .executeUpdate();
+    }
 }

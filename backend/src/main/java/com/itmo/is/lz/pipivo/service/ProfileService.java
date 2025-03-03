@@ -82,4 +82,20 @@ public class ProfileService {
         }
         subscribedUsersRepository.addFollowedUser(user.getId(), subscribleUserId);
     }
+
+    @Transactional
+    public void unsubscribe(Long subscribedUserId) {
+        String username = userService.getCurrentUsername();
+        User user = userRepository.findByName(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        if(subscribedUserId.equals(user.getId())) {
+            System.out.println("User can't unsubscribe from himself");
+            throw new RuntimeException("User can't unsubscribe from himself");
+        }
+        if(!subscribedUsersRepository.existsFollowedUser(user.getId(), subscribedUserId)) {
+            System.out.println("User "+ user.getId()+ " is already unsubscribed from user "+ subscribedUserId);
+            throw new RuntimeException("User "+ user.getId()+ " is already unsubscribed from user "+ subscribedUserId);
+        }
+        subscribedUsersRepository.removeFollowedUser(user.getId(), subscribedUserId);
+    }
 }

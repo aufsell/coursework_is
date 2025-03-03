@@ -47,4 +47,10 @@ public class UserProfileController {
         profileService.subscribe(SubscribedUserId);
         return ResponseEntity.ok().build();
     }
+
+    @DeleteMapping("/subscribers/{SubscribedUserId}")
+    public ResponseEntity<Void> unsubscribe(@PathVariable Long SubscribedUserId) {
+        profileService.unsubscribe(SubscribedUserId);
+        return ResponseEntity.ok().build();
+    }
 }
