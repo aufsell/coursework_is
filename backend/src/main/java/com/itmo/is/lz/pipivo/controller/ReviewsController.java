@@ -42,4 +42,16 @@ public class ReviewsController {
         return ResponseEntity.ok().build();
     }
 
+    @DeleteMapping("/{reviewId}")
+    public ResponseEntity deleteReview(@PathVariable Long reviewId) {
+        reviewsService.deleteReview(reviewId);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/canDelete/{reviewId}")
+    public ResponseEntity canDeleteReview(@PathVariable Long reviewId) {
+        boolean canDelete = reviewsService.canDeleteReview(reviewId);
+        return ResponseEntity.ok(canDelete);
+    }
+
 }
