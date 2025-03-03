@@ -60,4 +60,10 @@ public class UserProfileController {
         List<ProfileDTO> subscribed = profileService.getSubscribed(userId);
         return ResponseEntity.ok(subscribed);
     }
+
+    @GetMapping("/subscribed/{userId}/count")
+    public ResponseEntity<Long> getSubscribedCount(@PathVariable Long userId) {
+        Long count = profileService.getSubscribedCount(userId);
+        return ResponseEntity.ok(count);
+    }
 }

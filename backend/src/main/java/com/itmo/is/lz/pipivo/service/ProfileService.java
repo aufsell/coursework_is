@@ -106,4 +106,10 @@ public class ProfileService {
         List<User> subscribed = userRepository.findAllById(subscribedId);
         return subscribed.stream().map(this::convertToDTO).collect(Collectors.toList());
     }
+
+    public Long getSubscribedCount(Long userId) {
+        userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return subscribedUsersRepository.getCountSubscribedUserIdsByUserId(userId);
+    }
 }
