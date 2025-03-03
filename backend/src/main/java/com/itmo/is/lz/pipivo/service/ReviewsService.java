@@ -17,6 +17,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.ZoneId;
+import java.util.Date;
 import java.util.Map;
 
 @Service
@@ -81,5 +82,15 @@ public class ReviewsService {
                         new ProfileDTO(getUser(review))
                 )
         );
+    }
+
+    public void updateReview(Long reviewId, ReviewDTO reviewDTO) {
+        Review review = reviewsRepository.findById(reviewId)
+                .orElseThrow(() -> new RuntimeException("Review with id " + reviewId + " was not found."));
+
+        review.setRating(reviewDTO.getRating());
+        review.setComment(reviewDTO.getComment());
+        review.setCreated_at(new Date());
+        reviewsRepository.save(review);
     }
 }

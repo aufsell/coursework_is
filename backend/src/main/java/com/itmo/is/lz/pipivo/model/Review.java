@@ -50,4 +50,9 @@ public class Review {
     protected void onCreate() {
         created_at = new Date();
     }
+
+    @PreUpdate
+    protected void onUpdate() {
+        created_at = new Date();
+    }
 }
