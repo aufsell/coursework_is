@@ -21,4 +21,12 @@ public class SubscribedUsersRepository {
                 .getResultList();
     }
 
+    public Long getCountFollowedUserIdsByUserId(Long userId) {
+        return (Long) entityManager.createNativeQuery(
+                        "SELECT COUNT(followed_user) FROM subscribed_users WHERE user_id = :userId"
+                )
+                .setParameter("userId", userId)
+                .getSingleResult();
+    }
+
 }

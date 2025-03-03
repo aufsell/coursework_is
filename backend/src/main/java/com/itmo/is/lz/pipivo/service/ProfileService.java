@@ -58,4 +58,10 @@ public class ProfileService {
         return subscribers.stream().map(this::convertToDTO).collect(Collectors.toList());
 
     }
+
+    public Long getSubscribersCount(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return subscribedUsersRepository.getCountFollowedUserIdsByUserId(userId);
+    }
 }

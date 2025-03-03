@@ -35,4 +35,10 @@ public class UserProfileController {
         List<ProfileDTO> subscribers = profileService.getSubscribers(userId);
         return ResponseEntity.ok(subscribers);
     }
+
+    @GetMapping("/subscribers/{userId}/count")
+    public ResponseEntity<Long> getSubscribersCount(@PathVariable Long userId) {
+        Long count = profileService.getSubscribersCount(userId);
+        return ResponseEntity.ok(count);
+    }
 }
