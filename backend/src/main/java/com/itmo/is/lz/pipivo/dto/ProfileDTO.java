@@ -1,5 +1,6 @@
 package com.itmo.is.lz.pipivo.dto;
 
+import com.itmo.is.lz.pipivo.model.User;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -29,5 +30,17 @@ public class ProfileDTO {
         this.prefLanguage = prefLanguage;
         this.country = country;
         this.avatarPath = avatarPath;
+    }
+
+    public ProfileDTO(User user) {
+        this.profileId = user.getId();
+        this.name = user.getName();
+        this.firstName = user.getFirstName();
+        this.lastName = user.getLastName();
+        this.email = user.getEmail();
+        this.prefLanguage = user.getPrefLanguage();
+        this.country = user.getCountry();
+        this.avatarPath = user.getAvatarPath();
+
     }
 }
