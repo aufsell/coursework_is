@@ -41,7 +41,7 @@ public class TasteProfile {
     @Column(name="og_pref")
     private Long ogPreference;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "fermentation_type", referencedColumnName = "id")
     private FermentationType fermentationType;
 
