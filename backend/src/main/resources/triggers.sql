@@ -131,3 +131,16 @@ CREATE OR REPLACE TRIGGER trigger_update_recommendations
     AFTER UPDATE ON tasteprofiles
     FOR EACH ROW
 EXECUTE FUNCTION update_recommendations_after_tasteprofile_update();
+
+CREATE OR REPLACE FUNCTION update_last_updated()
+    RETURNS TRIGGER AS $$
+BEGIN
+    NEW.last_updated = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_update_last_updated
+    BEFORE UPDATE ON beers
+    FOR EACH ROW
+EXECUTE FUNCTION update_last_updated();
