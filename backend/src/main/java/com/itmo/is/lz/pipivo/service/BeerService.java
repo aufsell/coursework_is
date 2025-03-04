@@ -1,16 +1,27 @@
 package com.itmo.is.lz.pipivo.service;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.FieldValue;
+import co.elastic.clients.elasticsearch._types.SortOptions;
+import co.elastic.clients.elasticsearch._types.SortOrder;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch.core.SearchRequest;
+import co.elastic.clients.elasticsearch.core.SearchResponse;
 import com.itmo.is.lz.pipivo.dto.BeerDTO;
 import com.itmo.is.lz.pipivo.model.Beer;
+import com.itmo.is.lz.pipivo.model.BeerDocument;
 import com.itmo.is.lz.pipivo.repository.BeerRepository;
 import com.itmo.is.lz.pipivo.repository.FavouriteBeerRepository;
 import com.itmo.is.lz.pipivo.specification.BeerSpecification;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -19,6 +30,10 @@ import java.util.Map;
 public class BeerService {
     private final BeerRepository beerRepository;
     private final FavouriteBeerRepository favouriteBeerRepository;
+    @Autowired
+    private ElasticsearchOperations elasticsearchOperations;
+    @Autowired
+    private ElasticsearchClient elasticsearchClient;
 
 
     public BeerDTO getBeerById(Long beerId) {
@@ -65,5 +80,34 @@ public class BeerService {
 
         List<Beer> beers = beerRepository.findAllById(beerIds);
         return beers.stream().map(this::convertToDTO).toList();
+    }
+
+    public SearchResponse<BeerDocument> searchBeers(Map<String, Object> filters, int page, int size) throws IOException {
+        Query query = new Query.Builder()
+                .bool(b -> {
+                    filters.forEach((field, value) -> {
+
+                        if (value instanceof String) {
+                            b.must(m -> m.matchPhrasePrefix(
+                                    match -> match.field(field).query((String) value)
+                            ));
+                        } else if (value instanceof Number) {
+                            b.must(t -> t.term(term -> term.field(field).value(FieldValue.of(value))));
+
+                        }
+                    });
+                    return b;
+                })
+                .build();
+
+        SearchRequest searchRequest = new SearchRequest.Builder()
+                .index("beers")
+                .query(query)
+                .from(page * size)
+                .size(size)
+                .build();
+
+        return elasticsearchClient.search(searchRequest, BeerDocument.class);
+
     }
 }

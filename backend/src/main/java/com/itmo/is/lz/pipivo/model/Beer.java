@@ -78,4 +78,7 @@ public class Beer {
     @Column (name = "image_path")
     private String imagePath;
 
+    @Column (name="last_updated", nullable = false, updatable = false, insertable = false)
+    private java.sql.Timestamp lastUpdated;
+
 }
