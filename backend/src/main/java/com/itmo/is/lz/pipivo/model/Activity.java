@@ -24,7 +24,7 @@ public class Activity {
     private User user;
 
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name="type_id")
     @NotNull(message = "Activity type cannot be null")
     private ActivityType activityType;
