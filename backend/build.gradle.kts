@@ -24,6 +24,8 @@ repositories {
 }
 
 dependencies {
+	implementation("org.apache.poi:poi-ooxml:5.2.3")
+	implementation ("io.minio:minio:8.4.3")
 	implementation("org.springframework.boot:spring-boot-starter-data-elasticsearch")
 	implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
