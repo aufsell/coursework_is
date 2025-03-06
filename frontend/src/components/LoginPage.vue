@@ -167,7 +167,7 @@
           localStorage.setItem('username', JSON.stringify(response.data.username));
           localStorage.setItem('role', JSON.stringify(response.data.role));
   
-          this.$router.push('/hello');
+          this.$router.push('/beerlist');
         } catch (error) {
           if (error.response) {
             this.errorMessage = error.response.data.message || 'Incorrect username or password, please try again';

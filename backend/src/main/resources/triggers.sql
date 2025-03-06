@@ -266,6 +266,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+
 CREATE OR REPLACE TRIGGER trigger_update_last_updated
     BEFORE UPDATE OR INSERT ON beers
     FOR EACH ROW
