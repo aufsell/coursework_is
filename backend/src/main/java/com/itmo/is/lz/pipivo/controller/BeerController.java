@@ -4,6 +4,7 @@ import co.elastic.clients.elasticsearch.core.search.Hit;
 import com.itmo.is.lz.pipivo.dto.BeerDTO;
 import com.itmo.is.lz.pipivo.model.BeerDocument;
 import com.itmo.is.lz.pipivo.service.BeerService;
+import com.itmo.is.lz.pipivo.service.TasteProfileService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/v1/beer")
 public class BeerController {
     private final  BeerService beerService;
+    private TasteProfileService tasteProfileService;
 
     public BeerController(BeerService beerService) {
         this.beerService = beerService;
@@ -59,7 +61,7 @@ public class BeerController {
         List<BeerDocument> beers = response.hits().hits().stream()
                 .map(Hit::source)
                 .collect(Collectors.toList());
-
+        tasteProfileService.updateTasteProfileBySearch(filters);
         return ResponseEntity.ok(beers);
     }
 }

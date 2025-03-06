@@ -2,8 +2,6 @@ package com.itmo.is.lz.pipivo.service;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.FieldValue;
-import co.elastic.clients.elasticsearch._types.SortOptions;
-import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
@@ -34,8 +32,6 @@ public class BeerService {
     private ElasticsearchOperations elasticsearchOperations;
     @Autowired
     private ElasticsearchClient elasticsearchClient;
-    @Autowired
-    private TasteProfileService tasteProfileService;
 
 
     public BeerDTO getBeerById(Long beerId) {
@@ -109,7 +105,6 @@ public class BeerService {
                 .size(size)
                 .build();
 
-        tasteProfileService.updateTasteProfileBySearch(filters);
         System.out.println("Taste profile updated for user");
 
         return elasticsearchClient.search(searchRequest, BeerDocument.class);

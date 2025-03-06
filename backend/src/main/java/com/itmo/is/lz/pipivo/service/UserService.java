@@ -18,7 +18,6 @@ import java.util.ArrayList;
 public class UserService {
     private final UserRepository userRepository;
     private final FavouriteBeerRepository favouriteBeerRepository;
-    private final TasteProfileService tasteProfileService;
 
     public UserDetailsService userDetailsService() {
         return this::loadUserByUsername;
@@ -60,8 +59,6 @@ public class UserService {
 
         favouriteBeerRepository.addBeerToFavourites(user.getId(), beerId);
         System.out.println("Beer "+ beerId+ " added in favourites for user "+ user.getId());
-        tasteProfileService.updateTasteProfileByFavourite(user.getId(), beerId);
-        System.out.println("Taste profile updated for user "+ user.getId());
     }
 
     @Transactional

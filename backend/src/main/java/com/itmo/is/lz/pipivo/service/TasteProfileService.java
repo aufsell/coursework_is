@@ -4,6 +4,7 @@ import com.itmo.is.lz.pipivo.dto.BeerDTO;
 import com.itmo.is.lz.pipivo.model.FermentationType;
 import com.itmo.is.lz.pipivo.model.TasteProfile;
 import com.itmo.is.lz.pipivo.model.User;
+import com.itmo.is.lz.pipivo.repository.RecommendationRepository;
 import com.itmo.is.lz.pipivo.repository.TasteProfileRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ public class TasteProfileService {
     private final BeerService beerService;
     private final TasteProfileRepository tasteProfileRepository;
     private final UserService userService;
+    private final RecommendationRepository recomendationRepository;
 
     private final double favouriteWeight = 0.7;
     private final double searchWeight = 0.1;
@@ -51,7 +53,7 @@ public class TasteProfileService {
         if (tasteProfile == null) {
             return;
         }
-  
+
         if (filters.containsKey("ibu")) {
             double ibu = Double.parseDouble(filters.get("ibu").toString());
             tasteProfile.setIbuPreference((long) (tasteProfile.getIbuPreference() * (1 - searchWeight) + ibu * searchWeight));
@@ -92,4 +94,12 @@ public class TasteProfileService {
     }
 
 
+    public List<BeerDTO> getRecomendatedBeers() {
+        String username = userService.getCurrentUsername();
+        User user = userService.getByUsername(username);
+        List<BeerDTO> beers = recomendationRepository.getRecomendatedBeersIdsByUserId(user.getId()).stream()
+                .map(beerService::getBeerById)
+                .collect(Collectors.toList());
+        return beers;
+    }
 }
