@@ -73,26 +73,26 @@ EXECUTE FUNCTION trigger_add_notification_users();
 
 -------
 
-CREATE OR REPLACE FUNCTION find_similar_beers(user_id INT, limit_results INT)
+CREATE OR REPLACE FUNCTION find_similar_beers(user_id BIGINT, limit_results INT)
     RETURNS TABLE (
-                      beer_id INT,
+                      beer_id BIGINT,
                       name VARCHAR,
                       similarity_score DECIMAL
                   ) AS $$
 BEGIN
     RETURN QUERY
         SELECT
-            b.id AS beer_id,
+            CAST(b.id AS BIGINT) AS beer_id,   -- явное приведение к BIGINT
             b.name AS name,
-            ABS(tp.ibu_pref - b.ibu) +
-            ABS(tp.srm_pref - b.srm) +
-            ABS(tp.abv_pref - b.abv) +
-            ABS(tp.og_pref - b.og) +
-            ABS(tp.price - b.price) +
-            CASE
-                WHEN tp.fermentation_type = b.fermentation_type THEN 0
-                ELSE 1
-                END AS similarity_score
+            CAST(ABS(CAST(tp.ibu_pref AS integer) - b.ibu) +
+                 ABS(CAST(tp.srm_pref AS integer) - b.srm) +
+                 ABS(CAST(tp.abv_pref AS integer)  - b.abv) +
+                 ABS(CAST(tp.og_pref AS integer)  - b.og) +
+                 ABS(tp.price - b.price) +
+                 CASE
+                     WHEN tp.fermentation_type = b.fermentation_type THEN 0
+                     ELSE 1
+                     END AS DECIMAL) AS similarity_score -- явное приведение к DECIMAL
         FROM
             tasteprofiles tp
                 CROSS JOIN beers b
@@ -103,6 +103,8 @@ BEGIN
         LIMIT limit_results;
 END;
 $$ LANGUAGE plpgsql;
+
+
 
 
 -- SELECT * FROM find_similar_beers(1, 10);
@@ -121,7 +123,7 @@ BEGIN
         NEW.user_id,
         beer_id
     FROM
-        find_similar_beers(NEW.user_id, 10) AS recommendations;
+        find_similar_beers(NEW.user_id::BIGINT, 7) AS recommendations;
 
     RETURN NEW;
 END;
@@ -140,7 +142,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER trigger_update_last_updated
+CREATE OR REPLACE TRIGGER trigger_update_last_updated
     BEFORE UPDATE ON beers
     FOR EACH ROW
 EXECUTE FUNCTION update_last_updated();
