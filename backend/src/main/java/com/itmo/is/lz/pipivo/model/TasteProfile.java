@@ -37,7 +37,7 @@ public class TasteProfile {
     private Long srmPreference;
 
     @Positive(message = "OG preference must be positive")
-    @Max(100)
+    @Max(120)
     @Column(name="og_pref")
     private Long ogPreference;
 

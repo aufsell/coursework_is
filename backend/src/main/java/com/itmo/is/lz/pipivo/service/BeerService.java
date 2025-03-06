@@ -34,6 +34,8 @@ public class BeerService {
     private ElasticsearchOperations elasticsearchOperations;
     @Autowired
     private ElasticsearchClient elasticsearchClient;
+    @Autowired
+    private TasteProfileService tasteProfileService;
 
 
     public BeerDTO getBeerById(Long beerId) {
@@ -106,6 +108,9 @@ public class BeerService {
                 .from(page * size)
                 .size(size)
                 .build();
+
+        tasteProfileService.updateTasteProfileBySearch(filters);
+        System.out.println("Taste profile updated for user");
 
         return elasticsearchClient.search(searchRequest, BeerDocument.class);
 
