@@ -140,6 +140,12 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+CREATE TRIGGER trigger_insert_last_updated
+    BEFORE INSERT ON beers
+    FOR EACH ROW
+EXECUTE FUNCTION update_last_updated();
+
+
 CREATE TRIGGER trigger_update_last_updated
     BEFORE UPDATE ON beers
     FOR EACH ROW
