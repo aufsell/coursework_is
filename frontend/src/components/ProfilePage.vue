@@ -4,19 +4,7 @@
   <main class="body">
     <ProfileInfo />
 
-    <section class="favourites-beers">
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-    </section>
+    <FavouriteBeers />
 
     <section class="profile-info">
       <div class="profile-card">
@@ -71,11 +59,13 @@
 <script>
 import Header from "./Header.vue";
 import ProfileInfo from "./ProfileInfo.vue";
+import FavouriteBeers from "./FavouriteBeers.vue";
 
 export default {
   components: {
     Header,
     ProfileInfo,
+    FavouriteBeers,
   },
 };
 </script>
