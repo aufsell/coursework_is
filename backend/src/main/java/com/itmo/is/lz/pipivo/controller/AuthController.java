@@ -4,10 +4,12 @@ import com.itmo.is.lz.pipivo.dto.SignInRequestDTO;
 import com.itmo.is.lz.pipivo.dto.SignUpRequestDTO;
 import com.itmo.is.lz.pipivo.dto.UserRegistrationResponse;
 import com.itmo.is.lz.pipivo.service.AuthService;
+import com.itmo.is.lz.pipivo.service.ReCaptchaService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -25,27 +27,41 @@ public class AuthController {
     private final AuthService authService;
     private final AuthenticationManager authenticationManager;
 
+    @Autowired
+    private ReCaptchaService reCaptchaService;
+
     @PostMapping("/signup")
     public ResponseEntity<UserRegistrationResponse> register(@RequestBody SignUpRequestDTO request) {
-        UserRegistrationResponse response = authService.signUp(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+//        if (reCaptchaService.verifyRecaptcha(request.getRecaptcha())) {
+            UserRegistrationResponse response = authService.signUp(request);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+//        }
+//        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 
     @PostMapping("/signin")
     public ResponseEntity<UserRegistrationResponse> login(@RequestBody SignInRequestDTO request,
                                                           HttpServletRequest httpRequest) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
-        );
 
-        SecurityContext securityContext = SecurityContextHolder.getContext();
-        securityContext.setAuthentication(authentication);
+//        if (reCaptchaService.verifyRecaptcha(request.getRecaptcha())) {
 
-        HttpSession session = httpRequest.getSession(true);
-        session.setAttribute("SPRING_SECURITY_CONTEXT", securityContext);
 
-        UserRegistrationResponse response = authService.signIn(request, httpRequest);
-        return ResponseEntity.ok(response);
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
+            );
+
+            SecurityContext securityContext = SecurityContextHolder.getContext();
+            securityContext.setAuthentication(authentication);
+
+            HttpSession session = httpRequest.getSession(true);
+            session.setAttribute("SPRING_SECURITY_CONTEXT", securityContext);
+
+            UserRegistrationResponse response = authService.signIn(request, httpRequest);
+            return ResponseEntity.ok(response);
+//        }
+//        else{
+//            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+//        }
     }
 
     @PostMapping("/logout")

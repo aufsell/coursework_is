@@ -12,8 +12,8 @@ const routes = [
   { path: '/', component: LoginPage },
   { path: '/login', component: LoginPage },
   { path: '/register', component: RegisterPage },
-  { path: '/mainpage', component: () => import('./components/MainPage.vue')}
-
+  { path: '/mainpage', component: () => import('./components/MainPage.vue')},
+  { path: '/beer', component: () => import('./components/BeerDetail.vue'), props: true},
 ]
 
 const router = createRouter({
