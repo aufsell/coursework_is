@@ -5,11 +5,14 @@ import co.elastic.clients.elasticsearch._types.FieldValue;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.json.JsonData;
 import com.itmo.is.lz.pipivo.dto.BeerDTO;
+import com.itmo.is.lz.pipivo.dto.BeerReviewCountDTO;
 import com.itmo.is.lz.pipivo.model.Beer;
 import com.itmo.is.lz.pipivo.model.BeerDocument;
 import com.itmo.is.lz.pipivo.repository.BeerRepository;
 import com.itmo.is.lz.pipivo.repository.FavouriteBeerRepository;
+import com.itmo.is.lz.pipivo.repository.ReviewsRepository;
 import com.itmo.is.lz.pipivo.specification.BeerSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +23,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -32,7 +37,8 @@ public class BeerService {
     private ElasticsearchOperations elasticsearchOperations;
     @Autowired
     private ElasticsearchClient elasticsearchClient;
-
+    @Autowired
+    private ReviewsRepository reviewsRepository;
 
     public BeerDTO getBeerById(Long beerId) {
         BeerDTO beerDTO = beerRepository.findById(beerId)
@@ -80,19 +86,29 @@ public class BeerService {
         return beers.stream().map(this::convertToDTO).toList();
     }
 
-    public SearchResponse<BeerDocument> searchBeers(Map<String, Object> filters, int page, int size) throws IOException {
+    public SearchResponse<BeerDocument> searchBeers(Map<String, Object> filters) throws IOException {
         Query query = new Query.Builder()
                 .bool(b -> {
                     filters.forEach((field, value) -> {
-
+                        // Проверяем тип значения и выбираем подходящий запрос
                         if (value instanceof String) {
-                            b.must(m -> m.matchPhrasePrefix(
-                                    match -> match.field(field).query((String) value)
+                            // Используем match для всех строковых полей для поиска по вхождениям
+                            b.must(m -> m.match(
+                                    match -> match
+                                            .field(field)
+                                            .query((String) value)
+                                            .analyzer(field.equals("name") ? "ngram_analyzer" : null) // Анализатор только для name
                             ));
-                        } else if (value instanceof Number) {
-                            b.must(t -> t.term(term -> term.field(field).value(FieldValue.of(value))));
+                        } else if (value instanceof Number numberValue) {
+                            // Для числовых полей (abv, ibu, price и т.д.) используем range или term
 
-                        }
+                            // Точное совпадение для чисел
+                                b.must(t -> t.term(
+                                        term -> term
+                                                .field(field)
+                                                .value((FieldValue) JsonData.of(numberValue))
+                                ));
+                            }
                     });
                     return b;
                 })
@@ -101,13 +117,29 @@ public class BeerService {
         SearchRequest searchRequest = new SearchRequest.Builder()
                 .index("beers")
                 .query(query)
-                .from(page * size)
-                .size(size)
                 .build();
 
         System.out.println("Taste profile updated for user");
 
         return elasticsearchClient.search(searchRequest, BeerDocument.class);
+    }
 
+
+    public List<BeerReviewCountDTO> getTopBeers() {
+        List<Object[]> topBeers = reviewsRepository.findTopBeers();
+
+        List<BeerReviewCountDTO> result = new ArrayList<>();
+        for (Object[] row : topBeers) {
+            Integer beerId = (Integer) row[0];
+            String beerName = (String) row[1];
+            String imagePath = (String) row[2];
+            Double price = row[3] != null ? ((BigDecimal) row[3]).doubleValue() : null;
+            Double averageRating = row[4] != null ? ((BigDecimal) row[4]).doubleValue() : null;
+            String country = (String) row[5];
+            Integer reviewCount = (Integer) row[6];
+
+            result.add(new BeerReviewCountDTO(beerId, beerName, imagePath, price, averageRating, country, reviewCount));
+        }
+        return result;
     }
 }

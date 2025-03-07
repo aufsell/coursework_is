@@ -25,6 +25,7 @@ public class UserReviewsRepository {
                 .getSingleResult();
     }
 
+
     @Transactional
     public void deleteUserReviewByReviewId(Long reviewId) {
         entityManager.createNativeQuery("DELETE FROM review_user WHERE review_id = :review_id")

@@ -22,6 +22,14 @@
       "name": {
         "type": "text",
         "analyzer": "ngram_analyzer"
+      },
+      "country" : {
+        "type": "text",
+        "analyzer": "ngram_analyzer"
+      },
+      "image_path" : {
+        "type": "text",
+        "analyzer": "ngram_analyzer"
       }
     }
   }

@@ -54,7 +54,7 @@ i INT;
         random_abv DECIMAL(5, 2);
         random_og DECIMAL(5, 2);
         random_country VARCHAR(255);
-        random_image_path VARCHAR(255);
+        random_image_path VARCHAR(1024);
         random_fermentation_type INT;
 BEGIN
 FOR i IN 51001..300000 LOOP
@@ -66,7 +66,12 @@ FOR i IN 51001..300000 LOOP
                 random_abv := ROUND((RANDOM() * 15 + 1)::NUMERIC, 2);
                 random_og := ROUND((RANDOM() * 1.1 + 1)::NUMERIC, 3);
                 random_country := 'Country_' || (i % 100);
-                random_image_path := '/images/beer_' || i || '.jpg';
+                random_image_path := CASE
+                                         WHEN RANDOM() < 0.33 THEN 'http://localhost:9000/pipivo/beer_images/beer_1.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=lW4rzRQue17OqXNFYiQB%2F20250306%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20250306T155338Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=f02e2255d67604a16dae7d7e1e6af7abc8dd813d7582d29f9af4afd4a17427c2'
+                                         WHEN RANDOM() < 0.66 THEN 'http://localhost:9000/pipivo/beer_images/beer_2.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=lW4rzRQue17OqXNFYiQB%2F20250306%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20250306T155338Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=6b40019984a39364c6c9aba5665196d8d074dd129c8617b17ad24ac1623cdfd7'
+                                         ELSE 'http://localhost:9000/pipivo/beer_images/beer_3.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=lW4rzRQue17OqXNFYiQB%2F20250306%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20250306T155338Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=25152957fa52010317bb68a79e7b5c91fb24b2929895fabe20ecc59e3315210b'
+                    END;
+
                 random_fermentation_type := i % 4 +1;
 
 INSERT INTO beers (

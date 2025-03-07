@@ -1,12 +1,15 @@
 package com.itmo.is.lz.pipivo.controller;
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import com.itmo.is.lz.pipivo.dto.BeerDTO;
+import com.itmo.is.lz.pipivo.dto.BeerReviewCountDTO;
 import com.itmo.is.lz.pipivo.model.BeerDocument;
 import com.itmo.is.lz.pipivo.service.BeerService;
 import com.itmo.is.lz.pipivo.service.TasteProfileService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.elasticsearch.client.elc.ElasticsearchTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,16 +20,23 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/beer")
 public class BeerController {
     private final  BeerService beerService;
+
+    private final ElasticsearchTemplate elasticsearchTemplate;
+    private final ElasticsearchClient elasticsearchClient;
+
     private TasteProfileService tasteProfileService;
 
-    public BeerController(BeerService beerService) {
+    public BeerController(BeerService beerService, ElasticsearchTemplate elasticsearchTemplate, ElasticsearchClient elasticsearchClient) {
         this.beerService = beerService;
+        this.elasticsearchTemplate = elasticsearchTemplate;
+        this.elasticsearchClient = elasticsearchClient;
     }
 
 
@@ -45,9 +55,7 @@ public class BeerController {
 
     @GetMapping("/beers/search")
     public ResponseEntity<List<BeerDocument>> searchBeers(
-            @RequestParam Map<String, String> params,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size)
+            @RequestParam Map<String, String> params)
             throws IOException {
 
         Map<String, Object> filters = new HashMap<>();
@@ -56,12 +64,20 @@ public class BeerController {
                 filters.put(entry.getKey(), entry.getValue());
             }
         }
-        SearchResponse<BeerDocument> response = beerService.searchBeers(filters, page, size);
+        SearchResponse<BeerDocument> response = beerService.searchBeers(filters);
         System.out.println(response);
         List<BeerDocument> beers = response.hits().hits().stream()
                 .map(Hit::source)
                 .collect(Collectors.toList());
+
         tasteProfileService.updateTasteProfileBySearch(filters);
         return ResponseEntity.ok(beers);
+    }
+
+
+
+    @GetMapping("/top")
+    public ResponseEntity<List<BeerReviewCountDTO>> getTopBeers() {
+        return ResponseEntity.ok(beerService.getTopBeers());
     }
 }
