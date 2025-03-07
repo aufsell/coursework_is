@@ -12,7 +12,10 @@ const routes = [
   { path: "/login", component: LoginPage },
   { path: "/register", component: RegisterPage },
   { path: "/mainpage", component: () => import("./components/MainPage.vue") },
-  { path: "/profile", component: () => import("./components/ProfilePage.vue") },
+  {
+    path: "/profile/:profileUserId",
+    component: () => import("./components/ProfilePage.vue"),
+  },
 ];
 
 const router = createRouter({

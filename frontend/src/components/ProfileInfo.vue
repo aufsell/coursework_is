@@ -1,17 +1,26 @@
 <template>
   <section class="profile-info">
     <div class="profile-card">
-      <div class="avatar"></div>
-      <div><h1 class="username">Пивной Гений</h1></div>
+      <div class="avatar">
+        <img v-if="profile.avatarPath" :src="profile.avatarPath" alt="Avatar" />
+      </div>
+      <div>
+        <h1 class="username">{{ profile.name || "Без имени" }}</h1>
+      </div>
+      <p v-if="profile.firstName || profile.lastName">
+        {{ profile.firstName || "" }} {{ profile.lastName || "" }}
+      </p>
+      <p v-if="profile.country">Страна: {{ profile.country }}</p>
+
       <div class="stat-box-items">
         <span class="stat-label">Reviews</span>
-        <span class="stat-value">2</span>
+        <span class="stat-value">{{ reviewsCount }}</span>
       </div>
       <button class="follow-btn">Follow</button>
       <div class="stat-box">
         <div class="stat-box-items-inner">
           <span class="stat-label">Followers</span>
-          <span class="stat-value">4</span>
+          <span class="stat-value">{{ followersCount }}</span>
         </div>
         <div class="stat-box-arrow">
           <img src="../assets/arrow.png" alt="раскрыть" />
@@ -20,7 +29,7 @@
       <div class="stat-box">
         <div class="stat-box-items-inner">
           <span class="stat-label">Followings</span>
-          <span class="stat-value">5</span>
+          <span class="stat-value">{{ followingsCount }}</span>
         </div>
         <div class="stat-box-arrow">
           <img src="../assets/arrow.png" alt="раскрыть" />
@@ -29,6 +38,75 @@
     </div>
   </section>
 </template>
+
+<script>
+import axios from "axios";
+
+export default {
+  data() {
+    return {
+      profile: {
+        name: "",
+        firstName: "",
+        lastName: "",
+        country: "",
+        avatarPath: "",
+      },
+      followersCount: 0,
+      reviewsCount: 1000,
+      followingsCount: 0,
+    };
+  },
+  computed: {
+    profileUserId() {
+      return this.$route.params.profileUserId;
+    },
+  },
+  async created() {
+    if (!this.profileUserId) return;
+
+    try {
+      const response = await axios.get(
+        `http://localhost:7777/api/v1/profile/${this.profileUserId}`,
+        { withCredentials: true }
+      );
+      this.profile = response.data;
+    } catch (error) {
+      console.error("Ошибка при загрузке профиля:", error);
+    }
+
+    try {
+      const response = await axios.get(
+        `http://localhost:7777/api/v1/profile/subscribers/${this.profileUserId}/count`,
+        { withCredentials: true }
+      );
+      this.followersCount = response.data;
+    } catch (error) {
+      console.error("Ошибка при запросе количества подписчиков:", error);
+    }
+
+    try {
+      const response = await axios.get(
+        `http://localhost:7777/api/v1/profile/subscribed/${this.profileUserId}/count`,
+        { withCredentials: true }
+      );
+      this.followingsCount = response.data;
+    } catch (error) {
+      console.error("Ошибка при запросе количества подписок:", error);
+    }
+
+    try {
+      const response = await axios.get(
+        `http://localhost:7777/api/v1/reviews/user/${this.profileUserId}/count`,
+        { withCredentials: true }
+      );
+      this.reviewsCount = response.data;
+    } catch (error) {
+      console.error("Ошибка при запросе количества отзывов:", error);
+    }
+  },
+};
+</script>
 
 <style scoped>
 .stat-box {
