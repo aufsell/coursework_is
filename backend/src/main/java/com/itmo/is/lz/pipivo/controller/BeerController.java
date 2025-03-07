@@ -6,6 +6,7 @@ import com.itmo.is.lz.pipivo.dto.BeerDTO;
 import com.itmo.is.lz.pipivo.dto.BeerReviewCountDTO;
 import com.itmo.is.lz.pipivo.model.BeerDocument;
 import com.itmo.is.lz.pipivo.service.BeerService;
+import com.itmo.is.lz.pipivo.service.TasteProfileService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.client.elc.ElasticsearchTemplate;
@@ -26,8 +27,11 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/v1/beer")
 public class BeerController {
     private final  BeerService beerService;
+
     private final ElasticsearchTemplate elasticsearchTemplate;
     private final ElasticsearchClient elasticsearchClient;
+
+    private TasteProfileService tasteProfileService;
 
     public BeerController(BeerService beerService, ElasticsearchTemplate elasticsearchTemplate, ElasticsearchClient elasticsearchClient) {
         this.beerService = beerService;
@@ -65,7 +69,8 @@ public class BeerController {
         List<BeerDocument> beers = response.hits().hits().stream()
                 .map(Hit::source)
                 .collect(Collectors.toList());
-//        tasteProfileService.updateTasteProfileBySearch(filters);
+
+        tasteProfileService.updateTasteProfileBySearch(filters);
         return ResponseEntity.ok(beers);
     }
 
