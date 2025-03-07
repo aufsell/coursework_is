@@ -51,7 +51,7 @@
         username: '',
         password: '',
         errorMessage: '',
-        siteKey: '6LdDbugqAAAAAIlh4EnSUbTlFZY25uJzCJy3wle-', // Замените на ваш Site Key
+        siteKey: '6LdUwesqAAAAAIquLTBYjuZZ1fuk07dMobzKRMNU',
         widgetId: null,
         recaptchaToken: '',
         recaptchaScriptLoaded: false,
@@ -160,7 +160,7 @@
           const response = await axios.post('http://localhost:7777/auth/signup', {
             username: this.username,
             password: this.password,
-            'g-recaptcha-response': recaptchaResponse,
+            recaptcha: recaptchaResponse,
           });
           
           if (response.status === 201) {

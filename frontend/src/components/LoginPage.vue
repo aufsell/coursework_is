@@ -1,42 +1,51 @@
 <template>
   <div class="container mt-5">
-    <h1 class="text-center mb-4">Login</h1>
-    <form @submit.prevent="login" class="border p-4 rounded shadow-sm">
-      <div class="mb-3">
-        <label for="username" class="form-label">Username</label>
-        <input
-          type="text"
-          id="username"
-          v-model="username"
-          class="form-control"
-          placeholder="Enter your username"
-          required
+    <div class="row login-container">
+      <div class="col-md-5 zx">
+        <img
+          src=".././assets/logreg.png"
+          class="img-fluid pipivo-image"
+          alt="Pipivo Image"
         />
       </div>
-      <div class="mb-3">
-        <label for="password" class="form-label">Password</label>
-        <input
-          type="password"
-          id="password"
-          v-model="password"
-          class="form-control"
-          placeholder="Enter your password"
-          required
-        />
+      <div class="col-md-7">
+        <h1 class="login-title">Join Pipivo <span>| Sign In</span></h1>
+        <form @submit.prevent="login" class="p-4">
+          <div class="mb-3">
+            <input
+              v-model="username"
+              class="form-control custom-input"
+              placeholder="Type your email"
+              required
+            />
+          </div>
+          <div class="mb-3">
+            <input
+              type="password"
+              v-model="password"
+              class="form-control custom-input"
+              placeholder="Type your password"
+              required
+            />
+          </div>
+          <div class="mb-3">
+            <!-- Убираем класс g-recaptcha, чтобы избежать автоинициализации -->
+            <div ref="recaptcha"></div>
+          </div>
+          <button type="submit" class="btn btn-success w-100 custom-button">
+            Continue
+          </button>
+          <div v-if="errorMessage" class="alert alert-danger mt-3" role="alert">
+            {{ errorMessage }}
+          </div>
+        </form>
+        <div class="text-center mt-3">
+          Don't have a profile?
+          <router-link to="/register" class="text-orange"
+            >Join Pipivo</router-link
+          >
+        </div>
       </div>
-      <div class="mb-3">
-        <!-- Убираем класс g-recaptcha, чтобы избежать автоинициализации -->
-        <div ref="recaptcha"></div>
-      </div>
-      <button type="submit" class="btn btn-primary w-100">Login</button>
-      <div v-if="errorMessage" class="alert alert-danger mt-3" role="alert">
-        {{ errorMessage }}
-      </div>
-    </form>
-    <div class="text-center mt-3">
-      <router-link to="/register" class="link-secondary"
-        >Don't have an account? Register</router-link
-      >
     </div>
   </div>
 </template>
@@ -50,7 +59,7 @@ export default {
       username: "",
       password: "",
       errorMessage: "",
-      siteKey: "6LdDbugqAAAAAIlh4EnSUbTlFZY25uJzCJy3wle-", // Замените на ваш Site Key
+      siteKey: "6LdUwesqAAAAAIquLTBYjuZZ1fuk07dMobzKRMNU",
       widgetId: null,
       recaptchaToken: "",
       recaptchaScriptLoaded: false,
@@ -66,7 +75,6 @@ export default {
   },
   methods: {
     loadRecaptchaScript() {
-      // Проверяем, не загружен ли скрипт ранее
       if (
         document.querySelector(
           'script[src="https://www.google.com/recaptcha/api.js?render=explicit"]'
@@ -82,7 +90,7 @@ export default {
       script.defer = true;
       script.onload = () => {
         this.recaptchaScriptLoaded = true;
-        this.waitForRecaptchaLoad(); // Ждем загрузки перед рендерингом
+        this.waitForRecaptchaLoad();
       };
       script.onerror = () => {
         this.errorMessage = "Failed to load reCAPTCHA. Please try again later.";
@@ -104,7 +112,7 @@ export default {
         !this.$refs.recaptcha
       ) {
         console.error("reCAPTCHA not ready yet");
-        setTimeout(() => this.renderRecaptcha(), 100); // Повторная попытка через 100 мс
+        setTimeout(() => this.renderRecaptcha(), 100);
         return;
       }
 
@@ -169,7 +177,7 @@ export default {
           {
             username: this.username,
             password: this.password,
-            "g-recaptcha-response": recaptchaResponse,
+            recaptcha: recaptchaResponse,
           },
           {
             withCredentials: true,
@@ -177,14 +185,14 @@ export default {
         );
 
         console.log(response.data);
-        localStorage.setItem("userId", JSON.stringify(response.data.userId));
+        localStorage.setItem("userId", JSON.stringify(response.data.id));
         localStorage.setItem(
           "username",
           JSON.stringify(response.data.username)
         );
         localStorage.setItem("role", JSON.stringify(response.data.role));
 
-        this.$router.push("/profile");
+        this.$router.push("/mainpage");
       } catch (error) {
         if (error.response) {
           this.errorMessage =
@@ -201,7 +209,55 @@ export default {
 </script>
 
 <style scoped>
-.container {
-  max-width: 400px;
+.login-container {
+  border-radius: 30px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  background-color: white;
+  margin-top: 13vh;
+  padding: 0px;
+}
+
+/* Image styling */
+.pipivo-image {
+  margin-left: 0px;
+  padding-left: 0px;
+}
+
+/* Title styling */
+.login-title {
+  color: #ff9400; /* Orange color */
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+.login-title span {
+  color: #000000; /* Orange color */
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.custom-input {
+  background-color: #f8f9fa;
+  border: 1px solid #ced4da;
+  border-radius: 5px;
+}
+
+.custom-button {
+  border-radius: 20px;
+  font-weight: bold;
+}
+
+.text-orange {
+  color: #ff6200;
+}
+
+.zx {
+  display: flex;
+  padding: 0px;
+}
+
+body {
+  background-color: #f5f5f5;
 }
 </style>
