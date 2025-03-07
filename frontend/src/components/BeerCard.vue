@@ -1,21 +1,78 @@
-<script setup>
-defineProps({
-  beer: Object
-});
-</script>
-
-
-
 <template>
-  <div class="border rounded-lg p-4 shadow-md">
-    <img src=".././assets/beer.png" alt="beer" class="w-full h-48 object-contain" />
-    <div class="text-lg font-semibold mt-2">{{ beer.rating }} ★</div>
-    <div class="text-gray-500 text-sm">{{ beer.reviews }} ratings</div>
-    <div class="text-green-600 font-bold mt-1">{{ beer.price }} ₽</div>
-    <div class="mt-2 text-sm text-gray-700">
-      <span class="font-semibold">{{ beer.brewery }}</span><br />
-      {{ beer.name }}<br />
-      {{ beer.country }}
-    </div>
+  <div class="beer-card">
+    <div class="q1">
+    <div class="img"><img :src="beer.imagePath" :alt="beer.beerName"></div>
+    <div class="rating">{{ beer.averageRating.toFixed(1) }} <span class="stars">{{ getStars(beer.averageRating) }}</span></div>
+    <div class="ratings-count">{{ beer.reviewCount }} отзывов</div>
+    <div class="price">{{ beer.price.toFixed(2) }} ₽</div>
+  </div>
+    <div class="beer-details">{{ beer.beerName }}, {{ beer.country }}</div>
   </div>
 </template>
+
+<script>
+export default {
+  name: 'BeerCard',
+  props: {
+    beer: Object
+  },
+  methods: {
+    getStars(rating) {
+      const fullStars = Math.floor(rating);
+      const halfStar = rating % 1 >= 0.5 ? 1 : 0;
+      const emptyStars = 5 - fullStars - halfStar;
+      return '★'.repeat(fullStars) + '½'.repeat(halfStar) + '☆'.repeat(emptyStars);
+    }
+  }
+}
+</script>
+
+<style scoped>
+.beer-card {
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  padding: 10px;
+  text-align: center;
+}
+.beer-card img {
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+}
+.rating {
+  font-size: 18px;
+  font-weight: bold;
+  margin: 10px 0;
+}
+.stars {
+  color: orange;
+}
+.ratings-count {
+  font-size: 14px;
+  color: #666;
+}
+.q1{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.price {
+  background-color: green;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 5px;
+  display: inline-block;
+  margin: 10px 0;
+}
+.beer-details {
+  font-size: 16px;
+  font-weight: bold;
+}
+.img{
+  width: 40%;
+  height: auto;
+  
+}
+</style>
