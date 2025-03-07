@@ -66,4 +66,10 @@ public class UserProfileController {
         Long count = profileService.getSubscribedCount(userId);
         return ResponseEntity.ok(count);
     }
+
+    @GetMapping("/subscribed/{userId}/isSubscribed")
+    public ResponseEntity<Boolean> isSubscribed(@PathVariable Long userId) {
+        Boolean isSubscribed = profileService.isSubscribed(userId);
+        return ResponseEntity.ok(isSubscribed);
+    }
 }

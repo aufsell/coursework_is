@@ -75,4 +75,15 @@ public class SubscribedUsersRepository {
                 .setParameter("userId", userId)
                 .getSingleResult();
     }
+
+    public Boolean isFollowedUser(Long id, Long userId) {
+        Number count = (Number) entityManager.createNativeQuery(
+                        "SELECT COUNT(*) FROM subscribed_users WHERE user_id = :userId AND followed_user = :followedUserId"
+                )
+                .setParameter("userId", id)
+                .setParameter("followedUserId", userId)
+                .getSingleResult();
+
+        return count.longValue() > 0;
+    }
 }

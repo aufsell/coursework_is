@@ -112,4 +112,11 @@ public class ProfileService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
         return subscribedUsersRepository.getCountSubscribedUserIdsByUserId(userId);
     }
+
+    public Boolean isSubscribed(Long userId) {
+        String username = userService.getCurrentUsername();
+        User user = userRepository.findByName(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return subscribedUsersRepository.isFollowedUser(user.getId(), userId);
+    }
 }
