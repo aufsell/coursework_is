@@ -31,4 +31,10 @@ public class UserReviewsRepository {
                 .setParameter("review_id", reviewId)
                 .executeUpdate();
     }
+
+    public Long getReviewsCountByUserId(Long userId) {
+        return (Long) entityManager.createNativeQuery("SELECT COUNT(*) FROM review_user WHERE user_id = :user_id")
+                .setParameter("user_id", userId)
+                .getSingleResult();
+    }
 }

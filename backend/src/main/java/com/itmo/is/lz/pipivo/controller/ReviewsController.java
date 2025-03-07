@@ -36,6 +36,12 @@ public class ReviewsController {
         return ResponseEntity.ok(reviews);
     }
 
+    @GetMapping("/user/{userId}/count")
+    public ResponseEntity getReviewsCountByUserId(@PathVariable Long userId) {
+        Long reviewsCount = reviewsService.getReviewsCountByUserId(userId);
+        return ResponseEntity.ok(reviewsCount);
+    }
+
     @PatchMapping("/{reviewId}")
     public ResponseEntity updateReview(@PathVariable Long reviewId, @RequestBody ReviewDTO reviewDTO) {
         reviewsService.updateReview(reviewId, reviewDTO);
