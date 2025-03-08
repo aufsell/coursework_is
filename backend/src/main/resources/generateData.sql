@@ -56,6 +56,7 @@ i INT;
         random_country VARCHAR(255);
         random_image_path VARCHAR(1024);
         random_fermentation_type INT;
+        random_average_rating DECIMAL(5, 2);
 BEGIN
 FOR i IN 51001..300000 LOOP
                 random_name := 'Beer_' || i;
@@ -73,6 +74,7 @@ FOR i IN 51001..300000 LOOP
                     END;
 
                 random_fermentation_type := i % 4 +1;
+                random_average_rating := ROUND((RANDOM() * 5)::NUMERIC, 2);
 
 INSERT INTO beers (
     name,
@@ -84,7 +86,8 @@ INSERT INTO beers (
     abv,
     og,
     country,
-    image_path
+    image_path,
+    average_rating
 )
 VALUES (
            random_name,
@@ -96,7 +99,8 @@ VALUES (
            random_abv,
            random_og,
            random_country,
-           random_image_path
+           random_image_path,
+           random_average_rating
        );
 END LOOP;
 END $$;

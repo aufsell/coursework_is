@@ -338,3 +338,34 @@ BEGIN
         LIMIT 1;
 END;
 $$;
+
+CREATE OR REPLACE FUNCTION calculate_average_rating(beer_id BIGINT)
+    RETURNS VOID AS
+$$
+DECLARE
+    avg_rating DOUBLE PRECISION;
+BEGIN
+    SELECT AVG(rating)
+    INTO avg_rating
+    FROM reviews
+    WHERE beer_reviewed_id = beer_id;
+
+    UPDATE beers
+    SET average_rating = avg_rating
+    WHERE id = beer_id;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION trigger_update_average_rating()
+    RETURNS TRIGGER AS
+$$
+BEGIN
+    PERFORM calculate_average_rating(NEW.beer_reviewed_id);
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER update_average_rating_trigger
+    AFTER INSERT ON reviews
+    FOR EACH ROW
+EXECUTE FUNCTION trigger_update_average_rating();
