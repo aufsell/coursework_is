@@ -63,6 +63,7 @@ public class BeerService {
         beerDTO.setOg(beer.getOg());
         beerDTO.setCountry(beer.getCountry());
         beerDTO.setImagePath(beer.getImagePath());
+        beerDTO.setAverageRating(beer.getAverageRating());
         return beerDTO;
     }
 
@@ -72,7 +73,7 @@ public class BeerService {
                 new BeerDTO(
                         beer.getId(), beer.getName(), beer.getPrice(), beer.getVolume(),
                         beer.getFermentationType(), beer.getSrm(), beer.getIbu(),
-                        beer.getAbv(), beer.getOg(), beer.getCountry(), beer.getImagePath())
+                        beer.getAbv(), beer.getOg(), beer.getCountry(), beer.getImagePath(),beer.getAverageRating())
         );
     }
 

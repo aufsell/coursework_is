@@ -4,36 +4,9 @@
   <main class="body">
     <ProfileInfo />
 
-    <section class="favourites-beers">
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-    </section>
+    <FavouriteBeers />
 
-    <section class="profile-info">
-      <div class="profile-card">
-        <h3 class="section-title">Last Reviews</h3>
-      </div>
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-    </section>
+    <LastReviews />
   </main>
 </template>
 
@@ -61,6 +34,20 @@
   font-size: 27px;
 }
 
+.latest-reviews {
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #ffc473;
+  width: 100%;
+  position: relative;
+  bottom: 2%;
+  flex-direction: column;
+  padding-bottom: 2vw;
+  font-size: 27px;
+}
+
 .stats {
   display: flex;
   justify-content: center;
@@ -71,11 +58,15 @@
 <script>
 import Header from "./Header.vue";
 import ProfileInfo from "./ProfileInfo.vue";
+import FavouriteBeers from "./FavouriteBeers.vue";
+import LastReviews from "./ProfileLasrReviews.vue";
 
 export default {
   components: {
     Header,
     ProfileInfo,
+    FavouriteBeers,
+    LastReviews,
   },
 };
 </script>

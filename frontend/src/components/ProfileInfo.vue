@@ -16,10 +16,16 @@
         <span class="stat-label">Reviews</span>
         <span class="stat-value">{{ reviewsCount }}</span>
       </div>
-      <button class="follow-btn">Follow</button>
+      <button
+        v-if="showFollowButton"
+        class="follow-btn"
+        @click="toggleSubscription"
+      >
+        {{ isSubscribed ? "Отписаться" : "Подписаться" }}
+      </button>
       <div class="stat-box">
         <div class="stat-box-items-inner">
-          <span class="stat-label">Followers</span>
+          <span class="stat-label">Подписки</span>
           <span class="stat-value">{{ followersCount }}</span>
         </div>
         <div class="stat-box-arrow">
@@ -28,7 +34,7 @@
       </div>
       <div class="stat-box">
         <div class="stat-box-items-inner">
-          <span class="stat-label">Followings</span>
+          <span class="stat-label">Подпичики</span>
           <span class="stat-value">{{ followingsCount }}</span>
         </div>
         <div class="stat-box-arrow">
@@ -55,11 +61,18 @@ export default {
       followersCount: 0,
       reviewsCount: 1000,
       followingsCount: 0,
+      isSubscribed: false,
     };
   },
   computed: {
     profileUserId() {
       return this.$route.params.profileUserId;
+    },
+    currentUserId() {
+      return localStorage.getItem("userId");
+    },
+    showFollowButton() {
+      return this.currentUserId && this.currentUserId !== this.profileUserId;
     },
   },
   async created() {
@@ -104,6 +117,47 @@ export default {
     } catch (error) {
       console.error("Ошибка при запросе количества отзывов:", error);
     }
+    if (this.currentUserId) {
+      try {
+        const response = await axios.get(
+          `http://localhost:7777/api/v1/profile/subscribed/${this.profileUserId}/isSubscribed`,
+          { withCredentials: true }
+        );
+        this.isSubscribed = response.data;
+      } catch (error) {
+        console.error("Ошибка при проверке подписки:", error);
+      }
+    }
+  },
+  methods: {
+    async toggleSubscription() {
+      if (this.isSubscribed) {
+        // Отписка
+        try {
+          await axios.delete(
+            `http://localhost:7777/api/v1/profile/subscribers/${this.profileUserId}`,
+            { withCredentials: true }
+          );
+          this.isSubscribed = false;
+          this.followingsCount--;
+        } catch (error) {
+          console.error("Ошибка при отписке:", error);
+        }
+      } else {
+        // Подписка
+        try {
+          await axios.post(
+            `http://localhost:7777/api/v1/profile/subscribers/${this.profileUserId}`,
+            {},
+            { withCredentials: true }
+          );
+          this.isSubscribed = true;
+          this.followingsCount++;
+        } catch (error) {
+          console.error("Ошибка при подписке:", error);
+        }
+      }
+    },
   },
 };
 </script>
@@ -163,8 +217,19 @@ export default {
   cursor: pointer;
   border-radius: 60px;
   width: 35vw;
-  stroke: black;
-  stroke-width: 2px;
   border: 1px solid rgba(0, 0, 0, 0.23);
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.follow-btn:hover {
+  background-color: #f0f0f0;
+}
+
+.follow-btn:active {
+  background-color: #dcdcdc;
+}
+
+.clicked {
+  transform: scale(0.9);
 }
 </style>
