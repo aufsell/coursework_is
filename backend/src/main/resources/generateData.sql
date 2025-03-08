@@ -169,9 +169,10 @@ SELECT COUNT(*) INTO beer_count FROM beers;
 SELECT COUNT(*) INTO user_count FROM users;
 
 FOR i IN 1..100000 LOOP
-                INSERT INTO reviews (beer_reviewed_id, rating, comment)
+                INSERT INTO reviews (beer_reviewed_id, created_at, rating, comment)
                 VALUES (
                            (i % beer_count) + 1,
+                           NOW(),
                            ROUND((RANDOM() * 5)::numeric, 1),
                            'Комментарий ' || i
                        );
