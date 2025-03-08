@@ -54,7 +54,7 @@ export default {
       this.beers = toRaw(response.data).map((beer) => ({
         beerId: beer.beerId,
         beerName: beer.name,
-        imagePath: `http://localhost:9000${beer.imagePath}`,
+        imagePath: `${beer.imagePath}`,
         price: beer.price,
         averageRating:
           beer.averageRating != null && !isNaN(beer.averageRating)
