@@ -3,6 +3,7 @@ package com.itmo.is.lz.pipivo.controller;
 import com.itmo.is.lz.pipivo.dto.BeerDTO;
 import com.itmo.is.lz.pipivo.dto.ProfileDTO;
 import com.itmo.is.lz.pipivo.service.ProfileService;
+import com.itmo.is.lz.pipivo.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,7 @@ import java.util.List;
 public class UserProfileController {
 
     private final ProfileService profileService;
+    private final UserService userService;
 
     @GetMapping("/{userId}")
     public ResponseEntity<ProfileDTO> getProfile(@PathVariable Long userId) {
@@ -25,6 +27,9 @@ public class UserProfileController {
 
     @PutMapping("/{userId}")
     public ResponseEntity<Void> updateProfile(@PathVariable Long userId, @RequestBody ProfileDTO profileDTO) {
+        if(!userService.checkCurrentUser(userId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
         profileService.updateProfile(userId, profileDTO);
         return ResponseEntity.ok().build();
     }
