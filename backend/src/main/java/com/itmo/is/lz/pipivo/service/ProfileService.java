@@ -36,6 +36,7 @@ public class ProfileService {
         profileDTO.setLastName(user.getLastName());
         profileDTO.setCountry(user.getCountry());
         profileDTO.setAvatarPath(user.getAvatarPath());
+        profileDTO.setEmail(user.getEmail());
         return profileDTO;
     }
 
