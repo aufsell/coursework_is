@@ -22,9 +22,15 @@ import BeerCard from "./BeerCard.vue";
 import { toRaw } from "vue";
 
 export default {
-  name: "FavouritesBeers",
+  name: "FavouriteBeers",
   components: {
     BeerCard,
+  },
+  props: {
+    profileUserId: {
+      type: String,
+      required: true,
+    },
   },
   data() {
     return {
@@ -32,9 +38,6 @@ export default {
     };
   },
   computed: {
-    profileUserId() {
-      return this.$route.params.profileUserId;
-    },
     currentUserId() {
       return localStorage.getItem("userId");
     },
@@ -42,32 +45,41 @@ export default {
       return this.beers.slice(0, 4);
     },
   },
-  async created() {
-    if (!this.currentUserId) return;
+  watch: {
+    profileUserId(newId, oldId) {
+      if (newId !== oldId) {
+        this.loadFavouriteBeers();
+      }
+    },
+  },
+  created() {
+    this.loadFavouriteBeers();
+  },
+  methods: {
+    async loadFavouriteBeers() {
+      if (!this.currentUserId || !this.profileUserId) return;
 
-    try {
-      const response = await axios.get(
-        `http://localhost:7777/api/v1/favourite/${this.profileUserId}`,
-        { withCredentials: true }
-      );
-      console.log("Ответ сервера:", response.data);
-      this.beers = toRaw(response.data).map((beer) => ({
-        beerId: beer.beerId,
-        beerName: beer.name,
-        imagePath: `${beer.imagePath}`,
-        price: beer.price,
-        averageRating:
-          beer.averageRating != null && !isNaN(beer.averageRating)
-            ? beer.averageRating
-            : 3.0,
-        country: beer.country,
-        reviewCount: beer.srm,
-      }));
-
-      console.log("Обработанные данные:", this.beers);
-    } catch (error) {
-      console.error("Ошибка при загрузке избранного пива:", error);
-    }
+      try {
+        const response = await axios.get(
+          `http://localhost:7777/api/v1/favourite/${this.profileUserId}`,
+          { withCredentials: true }
+        );
+        this.beers = toRaw(response.data).map((beer) => ({
+          beerId: beer.beerId,
+          beerName: beer.name,
+          imagePath: `${beer.imagePath}`,
+          price: beer.price,
+          averageRating:
+            beer.averageRating != null && !isNaN(beer.averageRating)
+              ? beer.averageRating
+              : 3.0,
+          country: beer.country,
+          reviewCount: beer.srm,
+        }));
+      } catch (error) {
+        console.error("Ошибка при загрузке избранного пива:", error);
+      }
+    },
   },
 };
 </script>

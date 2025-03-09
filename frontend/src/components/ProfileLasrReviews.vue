@@ -23,9 +23,15 @@ import ReviewCard from "./ReviewCardWithPhoto.vue";
 import { toRaw } from "vue";
 
 export default {
-  name: "LatestReviews",
+  name: "LastReviews",
   components: {
     ReviewCard,
+  },
+  props: {
+    profileUserId: {
+      type: String,
+      required: true,
+    },
   },
   data() {
     return {
@@ -33,33 +39,43 @@ export default {
     };
   },
   computed: {
-    profileUserId() {
-      return this.$route.params.profileUserId;
-    },
     latestReviews() {
       return this.reviews.slice(0, 4);
     },
   },
-  async created() {
-    try {
-      const response = await axios.get(
-        `http://localhost:7777/api/v1/reviews/user/${this.profileUserId}?order=desc&sortBy=created_at`,
-        { withCredentials: true }
-      );
-      console.log("Ответ сервера:", response.data);
-      this.reviews = toRaw(response.data.content).map((review) => ({
-        reviewId: review.reviewId,
-        rating: review.rating,
-        comment: review.comment,
-        createdAt: review.created_at,
-        beer: {
-          beerId: review.beerId,
-          imagePath: review.beerImagePath,
-        },
-      }));
-    } catch (error) {
-      console.error("Ошибка при загрузке отзывов:", error);
-    }
+  watch: {
+    profileUserId(newId, oldId) {
+      if (newId !== oldId) {
+        this.loadReviews();
+      }
+    },
+  },
+  created() {
+    this.loadReviews();
+  },
+  methods: {
+    async loadReviews() {
+      if (!this.profileUserId) return;
+
+      try {
+        const response = await axios.get(
+          `http://localhost:7777/api/v1/reviews/user/${this.profileUserId}?order=desc&sortBy=created_at`,
+          { withCredentials: true }
+        );
+        this.reviews = toRaw(response.data.content).map((review) => ({
+          reviewId: review.reviewId,
+          rating: review.rating,
+          comment: review.comment,
+          createdAt: review.created_at,
+          beer: {
+            beerId: review.beerId,
+            imagePath: review.beerImagePath,
+          },
+        }));
+      } catch (error) {
+        console.error("Ошибка при загрузке отзывов:", error);
+      }
+    },
   },
 };
 </script>

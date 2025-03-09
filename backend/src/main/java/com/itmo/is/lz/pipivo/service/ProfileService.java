@@ -7,6 +7,7 @@ import com.itmo.is.lz.pipivo.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,6 +19,8 @@ public class ProfileService {
     private final UserService userService;
     private final UserRepository userRepository;
     private final SubscribedUsersRepository subscribedUsersRepository;
+    private final MinioService minioService;
+    private final ImportService importService;
 
     public ProfileDTO getProfile(Long userId) {
         User user = userRepository.findById(userId)
@@ -36,6 +39,7 @@ public class ProfileService {
         profileDTO.setLastName(user.getLastName());
         profileDTO.setCountry(user.getCountry());
         profileDTO.setAvatarPath(user.getAvatarPath());
+        profileDTO.setEmail(user.getEmail());
         return profileDTO;
     }
 
@@ -118,5 +122,16 @@ public class ProfileService {
         User user = userRepository.findByName(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         return subscribedUsersRepository.isFollowedUser(user.getId(), userId);
+    }
+
+    public void updateAvatar(Long userId, MultipartFile avatar) {
+        if (!avatar.getOriginalFilename().toLowerCase().endsWith(".png")) {
+            throw new IllegalArgumentException("File should be in .png format");
+        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        String avatarPath = importService.importAvatar(avatar, userId);
+        user.setAvatarPath(avatarPath);
+        userRepository.save(user);
     }
 }

@@ -115,7 +115,7 @@ export default {
 }
 
 .review-text:hover {
-  /* -webkit-line-clamp: unset; */
+  -webkit-line-clamp: unset;
   overflow: visible;
   white-space: normal;
   max-height: 100em;

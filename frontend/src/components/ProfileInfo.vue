@@ -16,6 +16,7 @@
         <span class="stat-label">Reviews</span>
         <span class="stat-value">{{ reviewsCount }}</span>
       </div>
+
       <button
         v-if="showFollowButton"
         class="follow-btn"
@@ -23,24 +24,41 @@
       >
         {{ isSubscribed ? "Отписаться" : "Подписаться" }}
       </button>
+
       <div class="stat-box">
         <div class="stat-box-items-inner">
           <span class="stat-label">Подписки</span>
           <span class="stat-value">{{ followersCount }}</span>
         </div>
         <div class="stat-box-arrow">
-          <img src="../assets/arrow.png" alt="раскрыть" />
+          <img
+            src="../assets/arrow.png"
+            alt="раскрыть"
+            @click="goToSubscribers"
+          />
         </div>
       </div>
       <div class="stat-box">
         <div class="stat-box-items-inner">
-          <span class="stat-label">Подпичики</span>
+          <span class="stat-label">Подписчики</span>
           <span class="stat-value">{{ followingsCount }}</span>
         </div>
         <div class="stat-box-arrow">
-          <img src="../assets/arrow.png" alt="раскрыть" />
+          <img
+            src="../assets/arrow.png"
+            alt="раскрыть"
+            @click="goToFollowers"
+          />
         </div>
       </div>
+
+      <button
+        v-if="currentUserId === profileUserId"
+        class="edit-btn"
+        @click="editProfile"
+      >
+        Редактировать
+      </button>
     </div>
   </section>
 </template>
@@ -49,6 +67,13 @@
 import axios from "axios";
 
 export default {
+  name: "ProfileInfo",
+  props: {
+    profileUserId: {
+      type: String,
+      required: true,
+    },
+  },
   data() {
     return {
       profile: {
@@ -59,15 +84,12 @@ export default {
         avatarPath: "",
       },
       followersCount: 0,
-      reviewsCount: 1000,
+      reviewsCount: 0,
       followingsCount: 0,
       isSubscribed: false,
     };
   },
   computed: {
-    profileUserId() {
-      return this.$route.params.profileUserId;
-    },
     currentUserId() {
       return localStorage.getItem("userId");
     },
@@ -75,64 +97,58 @@ export default {
       return this.currentUserId && this.currentUserId !== this.profileUserId;
     },
   },
-  async created() {
-    if (!this.profileUserId) return;
-
-    try {
-      const response = await axios.get(
-        `http://localhost:7777/api/v1/profile/${this.profileUserId}`,
-        { withCredentials: true }
-      );
-      this.profile = response.data;
-    } catch (error) {
-      console.error("Ошибка при загрузке профиля:", error);
-    }
-
-    try {
-      const response = await axios.get(
-        `http://localhost:7777/api/v1/profile/subscribers/${this.profileUserId}/count`,
-        { withCredentials: true }
-      );
-      this.followersCount = response.data;
-    } catch (error) {
-      console.error("Ошибка при запросе количества подписчиков:", error);
-    }
-
-    try {
-      const response = await axios.get(
-        `http://localhost:7777/api/v1/profile/subscribed/${this.profileUserId}/count`,
-        { withCredentials: true }
-      );
-      this.followingsCount = response.data;
-    } catch (error) {
-      console.error("Ошибка при запросе количества подписок:", error);
-    }
-
-    try {
-      const response = await axios.get(
-        `http://localhost:7777/api/v1/reviews/user/${this.profileUserId}/count`,
-        { withCredentials: true }
-      );
-      this.reviewsCount = response.data;
-    } catch (error) {
-      console.error("Ошибка при запросе количества отзывов:", error);
-    }
-    if (this.currentUserId) {
-      try {
-        const response = await axios.get(
-          `http://localhost:7777/api/v1/profile/subscribed/${this.profileUserId}/isSubscribed`,
-          { withCredentials: true }
-        );
-        this.isSubscribed = response.data;
-      } catch (error) {
-        console.error("Ошибка при проверке подписки:", error);
+  watch: {
+    profileUserId(newId, oldId) {
+      if (newId !== oldId) {
+        this.loadProfileData();
       }
-    }
+    },
+  },
+  created() {
+    this.loadProfileData();
   },
   methods: {
+    async loadProfileData() {
+      if (!this.profileUserId) return;
+
+      try {
+        const profileResponse = await axios.get(
+          `http://localhost:7777/api/v1/profile/${this.profileUserId}`,
+          { withCredentials: true }
+        );
+        this.profile = profileResponse.data;
+
+        const followersResponse = await axios.get(
+          `http://localhost:7777/api/v1/profile/subscribers/${this.profileUserId}/count`,
+          { withCredentials: true }
+        );
+        this.followersCount = followersResponse.data;
+
+        const followingsResponse = await axios.get(
+          `http://localhost:7777/api/v1/profile/subscribed/${this.profileUserId}/count`,
+          { withCredentials: true }
+        );
+        this.followingsCount = followingsResponse.data;
+
+        const reviewsResponse = await axios.get(
+          `http://localhost:7777/api/v1/reviews/user/${this.profileUserId}/count`,
+          { withCredentials: true }
+        );
+        this.reviewsCount = reviewsResponse.data;
+
+        if (this.currentUserId) {
+          const subscriptionResponse = await axios.get(
+            `http://localhost:7777/api/v1/profile/subscribed/${this.profileUserId}/isSubscribed`,
+            { withCredentials: true }
+          );
+          this.isSubscribed = subscriptionResponse.data;
+        }
+      } catch (error) {
+        console.error("Ошибка при загрузке данных профиля:", error);
+      }
+    },
     async toggleSubscription() {
       if (this.isSubscribed) {
-        // Отписка
         try {
           await axios.delete(
             `http://localhost:7777/api/v1/profile/subscribers/${this.profileUserId}`,
@@ -144,7 +160,6 @@ export default {
           console.error("Ошибка при отписке:", error);
         }
       } else {
-        // Подписка
         try {
           await axios.post(
             `http://localhost:7777/api/v1/profile/subscribers/${this.profileUserId}`,
@@ -157,6 +172,15 @@ export default {
           console.error("Ошибка при подписке:", error);
         }
       }
+    },
+    goToFollowers() {
+      this.$router.push(`/profile/${this.profileUserId}/followers`);
+    },
+    goToSubscribers() {
+      this.$router.push(`/profile/${this.profileUserId}/subscribers`);
+    },
+    editProfile() {
+      this.$router.push(`/profile/${this.profileUserId}/edit`);
     },
   },
 };
@@ -231,5 +255,51 @@ export default {
 
 .clicked {
   transform: scale(0.9);
+}
+
+.stat-box-arrow img {
+  cursor: pointer;
+}
+
+.stat-box-arrow img:hover {
+  transform: scale(1.3);
+}
+
+.edit-btn {
+  background-color: #4caf50;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  border-radius: 60px;
+  width: 35vw;
+  margin-top: 20px;
+  transition: background-color 0.2s ease;
+}
+
+.edit-btn:hover {
+  background-color: #45a049;
+}
+
+.edit-btn:active {
+  background-color: #388e3c;
+}
+
+.avatar {
+  width: 140px;
+  height: 140px;
+  background: gray;
+  border-radius: 50%;
+  margin: 0 auto;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 </style>
