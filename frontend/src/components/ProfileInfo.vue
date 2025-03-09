@@ -16,6 +16,7 @@
         <span class="stat-label">Reviews</span>
         <span class="stat-value">{{ reviewsCount }}</span>
       </div>
+
       <button
         v-if="showFollowButton"
         class="follow-btn"
@@ -23,6 +24,7 @@
       >
         {{ isSubscribed ? "Отписаться" : "Подписаться" }}
       </button>
+
       <div class="stat-box">
         <div class="stat-box-items-inner">
           <span class="stat-label">Подписки</span>
@@ -38,7 +40,7 @@
       </div>
       <div class="stat-box">
         <div class="stat-box-items-inner">
-          <span class="stat-label">Подпичики</span>
+          <span class="stat-label">Подписчики</span>
           <span class="stat-value">{{ followingsCount }}</span>
         </div>
         <div class="stat-box-arrow">
@@ -49,6 +51,15 @@
           />
         </div>
       </div>
+
+      <!-- Кнопка редактирования профиля -->
+      <button
+        v-if="currentUserId === profileUserId"
+        class="edit-btn"
+        @click="editProfile"
+      >
+        Редактировать
+      </button>
     </div>
   </section>
 </template>
@@ -172,6 +183,9 @@ export default {
     goToSubscribers() {
       this.$router.push(`/profile/${this.profileUserId}/subscribers`);
     },
+    editProfile() {
+      this.$router.push(`/profile/${this.profileUserId}/edit`);
+    },
   },
 };
 </script>
@@ -246,10 +260,32 @@ export default {
 .clicked {
   transform: scale(0.9);
 }
+
 .stat-box-arrow img {
   cursor: pointer;
 }
+
 .stat-box-arrow img:hover {
   transform: scale(1.3);
+}
+
+.edit-btn {
+  background-color: #4caf50;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  border-radius: 60px;
+  width: 35vw;
+  margin-top: 20px;
+  transition: background-color 0.2s ease;
+}
+
+.edit-btn:hover {
+  background-color: #45a049;
+}
+
+.edit-btn:active {
+  background-color: #388e3c;
 }
 </style>

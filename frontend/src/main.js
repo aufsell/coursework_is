@@ -31,6 +31,11 @@ const routes = [
     component: () => import("./components/Folowers.vue"),
     props: true,
   },
+  {
+    path: "/profile/:profileUserId/edit",
+    component: () => import("./components/EditProfile.vue"),
+    props: true,
+  },
 ];
 
 const router = createRouter({
