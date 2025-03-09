@@ -52,7 +52,6 @@
         </div>
       </div>
 
-      <!-- Кнопка редактирования профиля -->
       <button
         v-if="currentUserId === profileUserId"
         class="edit-btn"
@@ -68,6 +67,13 @@
 import axios from "axios";
 
 export default {
+  name: "ProfileInfo",
+  props: {
+    profileUserId: {
+      type: String,
+      required: true,
+    },
+  },
   data() {
     return {
       profile: {
@@ -78,15 +84,12 @@ export default {
         avatarPath: "",
       },
       followersCount: 0,
-      reviewsCount: 1000,
+      reviewsCount: 0,
       followingsCount: 0,
       isSubscribed: false,
     };
   },
   computed: {
-    profileUserId() {
-      return this.$route.params.profileUserId;
-    },
     currentUserId() {
       return localStorage.getItem("userId");
     },
@@ -94,64 +97,58 @@ export default {
       return this.currentUserId && this.currentUserId !== this.profileUserId;
     },
   },
-  async created() {
-    if (!this.profileUserId) return;
-
-    try {
-      const response = await axios.get(
-        `http://localhost:7777/api/v1/profile/${this.profileUserId}`,
-        { withCredentials: true }
-      );
-      this.profile = response.data;
-    } catch (error) {
-      console.error("Ошибка при загрузке профиля:", error);
-    }
-
-    try {
-      const response = await axios.get(
-        `http://localhost:7777/api/v1/profile/subscribers/${this.profileUserId}/count`,
-        { withCredentials: true }
-      );
-      this.followersCount = response.data;
-    } catch (error) {
-      console.error("Ошибка при запросе количества подписчиков:", error);
-    }
-
-    try {
-      const response = await axios.get(
-        `http://localhost:7777/api/v1/profile/subscribed/${this.profileUserId}/count`,
-        { withCredentials: true }
-      );
-      this.followingsCount = response.data;
-    } catch (error) {
-      console.error("Ошибка при запросе количества подписок:", error);
-    }
-
-    try {
-      const response = await axios.get(
-        `http://localhost:7777/api/v1/reviews/user/${this.profileUserId}/count`,
-        { withCredentials: true }
-      );
-      this.reviewsCount = response.data;
-    } catch (error) {
-      console.error("Ошибка при запросе количества отзывов:", error);
-    }
-    if (this.currentUserId) {
-      try {
-        const response = await axios.get(
-          `http://localhost:7777/api/v1/profile/subscribed/${this.profileUserId}/isSubscribed`,
-          { withCredentials: true }
-        );
-        this.isSubscribed = response.data;
-      } catch (error) {
-        console.error("Ошибка при проверке подписки:", error);
+  watch: {
+    profileUserId(newId, oldId) {
+      if (newId !== oldId) {
+        this.loadProfileData();
       }
-    }
+    },
+  },
+  created() {
+    this.loadProfileData();
   },
   methods: {
+    async loadProfileData() {
+      if (!this.profileUserId) return;
+
+      try {
+        const profileResponse = await axios.get(
+          `http://localhost:7777/api/v1/profile/${this.profileUserId}`,
+          { withCredentials: true }
+        );
+        this.profile = profileResponse.data;
+
+        const followersResponse = await axios.get(
+          `http://localhost:7777/api/v1/profile/subscribers/${this.profileUserId}/count`,
+          { withCredentials: true }
+        );
+        this.followersCount = followersResponse.data;
+
+        const followingsResponse = await axios.get(
+          `http://localhost:7777/api/v1/profile/subscribed/${this.profileUserId}/count`,
+          { withCredentials: true }
+        );
+        this.followingsCount = followingsResponse.data;
+
+        const reviewsResponse = await axios.get(
+          `http://localhost:7777/api/v1/reviews/user/${this.profileUserId}/count`,
+          { withCredentials: true }
+        );
+        this.reviewsCount = reviewsResponse.data;
+
+        if (this.currentUserId) {
+          const subscriptionResponse = await axios.get(
+            `http://localhost:7777/api/v1/profile/subscribed/${this.profileUserId}/isSubscribed`,
+            { withCredentials: true }
+          );
+          this.isSubscribed = subscriptionResponse.data;
+        }
+      } catch (error) {
+        console.error("Ошибка при загрузке данных профиля:", error);
+      }
+    },
     async toggleSubscription() {
       if (this.isSubscribed) {
-        // Отписка
         try {
           await axios.delete(
             `http://localhost:7777/api/v1/profile/subscribers/${this.profileUserId}`,
@@ -163,7 +160,6 @@ export default {
           console.error("Ошибка при отписке:", error);
         }
       } else {
-        // Подписка
         try {
           await axios.post(
             `http://localhost:7777/api/v1/profile/subscribers/${this.profileUserId}`,

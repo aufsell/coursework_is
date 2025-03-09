@@ -1,12 +1,14 @@
 <template>
-  <Header />
-
   <main class="body">
-    <ProfileInfo />
+    <div class="header">
+      <Header />
+    </div>
 
-    <FavouriteBeers />
+    <ProfileInfo :profileUserId="profileUserId" />
 
-    <LastReviews />
+    <FavouriteBeers :profileUserId="profileUserId" />
+
+    <LastReviews :profileUserId="profileUserId" />
   </main>
 </template>
 
@@ -14,6 +16,7 @@
 .main {
   background-color: red;
   position: absolute;
+  width: 100vw;
 }
 .body {
   display: flex;
@@ -53,6 +56,11 @@
   justify-content: center;
   gap: 20px;
 }
+
+.header {
+  width: 43vw;
+  margin-left: 28.5%;
+}
 </style>
 
 <script>
@@ -67,6 +75,18 @@ export default {
     ProfileInfo,
     FavouriteBeers,
     LastReviews,
+  },
+  computed: {
+    profileUserId() {
+      return this.$route.params.profileUserId;
+    },
+  },
+  watch: {
+    profileUserId(newId, oldId) {
+      if (newId !== oldId) {
+        this.$emit("update");
+      }
+    },
   },
 };
 </script>
