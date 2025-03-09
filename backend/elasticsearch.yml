@@ -4,7 +4,7 @@
       "filter": {
         "ngram_filter": {
           "type": "edge_ngram",
-          "min_gram": 1,
+          "min_gram": 2,
           "max_gram": 15
         }
       },
@@ -21,7 +21,8 @@
     "properties": {
       "name": {
         "type": "text",
-        "analyzer": "ngram_analyzer"
+        "analyzer": "ngram_analyzer",
+        "search_analyzer": "standard"
       },
       "country" : {
         "type": "text",

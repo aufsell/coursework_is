@@ -1,12 +1,12 @@
 <template>
     <header>
-      <div class="logo">PIPIVO</div>
-      <input type="text" placeholder="Поиск любого пива" class="search-bar">
+      <div class="logo" @click="goToMain">PIPIVO</div>
+      <SearchBar/>
     
       <nav>
         <ul>
-          <li class="active">Пиво</li>
-          <li>Фильтры</li>
+          <li class="active" @click="goToMain">Пиво</li>
+          <li @click="goToFilter">Фильтры</li>
         </ul>
       </nav>
       <div class="nav-icons">
@@ -17,8 +17,24 @@
   </template>
   
   <script>
+
+  import SearchBar from './SearchBar.vue';
   export default {
-    name: 'AppHeader'
+    name: 'AppHeader',
+    components
+    : {
+      SearchBar
+    }
+  ,
+  
+  methods: {
+    goToFilter() {
+      this.$router.push('/filters');
+    },
+    goToMain() {
+      this.$router.push('/mainpage');
+  }
+}
   }
   </script>
   
