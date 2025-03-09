@@ -11,7 +11,7 @@
     </nav>
     <div class="nav-icons">
       <img src="../assets/active.png" alt="Уведомления" />
-      <img src="../assets/user.png" alt="Профиль" />
+      <img src="../assets/user.png" alt="Профиль" @click="goToProfile" />
     </div>
   </header>
 </template>
@@ -19,6 +19,11 @@
 <script>
 export default {
   name: "AppHeader",
+  methods: {
+    goToProfile() {
+      this.$router.push("/profile");
+    },
+  },
 };
 </script>
 

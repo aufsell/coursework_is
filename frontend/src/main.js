@@ -38,4 +38,17 @@ const router = createRouter({
   routes,
 });
 
+router.beforeEach((to, from, next) => {
+  if (to.path === "/profile") {
+    const currentUserId = localStorage.getItem("userId");
+    if (currentUserId) {
+      next({ path: `/profile/${currentUserId}`, replace: true });
+    } else {
+      next("/login");
+    }
+  } else {
+    next();
+  }
+});
+
 createApp(App).use(router).mount("#app");
