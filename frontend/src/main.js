@@ -8,15 +8,28 @@ import LoginPage from "./components/LoginPage.vue";
 import RegisterPage from "./components/RegisterPage.vue";
 
 const routes = [
-
-  { path: '/', component: LoginPage },
-  { path: '/login', component: LoginPage },
-  { path: '/register', component: RegisterPage },
-  { path: '/mainpage', component: () => import('./components/MainPage.vue')},
-  { path: '/beer', component: () => import('./components/BeerDetail.vue'), props: true},
+  { path: "/", component: LoginPage },
+  { path: "/login", component: LoginPage },
+  { path: "/register", component: RegisterPage },
+  { path: "/mainpage", component: () => import("./components/MainPage.vue") },
+  {
+    path: "/beer",
+    component: () => import("./components/BeerDetail.vue"),
+    props: true,
+  },
   {
     path: "/profile/:profileUserId",
     component: () => import("./components/ProfilePage.vue"),
+  },
+  {
+    path: "/profile/:profileUserId/subscribers",
+    component: () => import("./components/Subscribers.vue"),
+    props: true,
+  },
+  {
+    path: "/profile/:profileUserId/followers",
+    component: () => import("./components/Folowers.vue"),
+    props: true,
   },
 ];
 
