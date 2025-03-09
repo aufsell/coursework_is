@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -76,5 +77,14 @@ public class UserProfileController {
     public ResponseEntity<Boolean> isSubscribed(@PathVariable Long userId) {
         Boolean isSubscribed = profileService.isSubscribed(userId);
         return ResponseEntity.ok(isSubscribed);
+    }
+
+    @PostMapping("/{userId}/avatar")
+    public ResponseEntity<Void> updateAvatar(@PathVariable Long userId, @RequestParam("file") MultipartFile avatar) {
+        if(!userService.checkCurrentUser(userId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        profileService.updateAvatar(userId, avatar);
+        return ResponseEntity.ok().build();
     }
 }

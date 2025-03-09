@@ -28,13 +28,15 @@ public class ImportService {
     private final MinioService minioService;
     private final BeerRepository beerRepository;
     private final String imageFolderPath;
+    private final String avatarFolderPath;
     private final FermentationTypeRepository fermentationTypeRepository;
 
     public ImportService(MinioService minioService, BeerRepository beerRepository,
-                         @Value("${beer.image.folder}") String imageFolderPath, FermentationTypeRepository fermentationTypeRepository) {
+                         @Value("${beer.image.folder}") String imageFolderPath,@Value("${avatar.image.folder}") String avatarFolderPath, FermentationTypeRepository fermentationTypeRepository) {
         this.minioService = minioService;
         this.beerRepository = beerRepository;
         this.imageFolderPath = imageFolderPath;
+        this.avatarFolderPath = avatarFolderPath;
         this.fermentationTypeRepository = fermentationTypeRepository;
     }
 
@@ -52,6 +54,22 @@ public class ImportService {
             cleanUp(tempDir);
         }
     }
+
+    public String importAvatar(MultipartFile avatar, Long userId) {
+        Path tempDir = null;
+        try {
+            tempDir = Files.createTempDirectory("avatar_images");
+            System.out.println("Временная папка создана: " + tempDir);
+            Path avatarPath = tempDir.resolve(userId + ".png");
+            Files.copy(avatar.getInputStream(), avatarPath, StandardCopyOption.REPLACE_EXISTING);
+            return uploadAvatarToMinio(avatarPath);
+        } catch (Exception e) {
+            throw new RuntimeException("Ошибка при обработке аватара", e);
+        } finally {
+            cleanUp(tempDir);
+        }
+    }
+
 
     private void unzip(MultipartFile zipFile, Path tempDir) throws IOException {
         try (ZipInputStream zis = new ZipInputStream(zipFile.getInputStream())) {
@@ -125,6 +143,22 @@ public class ImportService {
 
             try (FileInputStream fis = new FileInputStream(imagePath.toFile())) {
                 String objectName = "beer_images/" + imagePath.getFileName();
+                minioService.uploadFile(objectName, fis, Files.size(imagePath), "image/png");
+                return minioService.generateUrl(objectName);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Ошибка загрузки изображения " + imagePath + " в MinIO", e);
+        }
+    }
+
+    private String uploadAvatarToMinio(Path imagePath) {
+        try {
+            if (!Files.exists(imagePath)) {
+                throw new RuntimeException("Файл " + imagePath + " не найден!");
+            }
+
+            try (FileInputStream fis = new FileInputStream(imagePath.toFile())) {
+                String objectName = "avatar_images/" + imagePath.getFileName();
                 minioService.uploadFile(objectName, fis, Files.size(imagePath), "image/png");
                 return minioService.generateUrl(objectName);
             }
