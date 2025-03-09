@@ -44,4 +44,7 @@ public class BeerDocument {
     @Field(type=FieldType.Text)
     private String image_path;
 
+    @Field(type=FieldType.Long)
+    private Long average_rating;
+
 }

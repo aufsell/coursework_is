@@ -27,6 +27,8 @@ public class BeerSpecification {
                     case "fermentationType":
                         predicates.add(criteriaBuilder.equal(root.get("fermentationType"), value));
                         break;
+                    case "averageRating":
+                        predicates.add(criteriaBuilder.equal(root.get("averageRating"), Double.valueOf(value)));
                     case "srm":
                         predicates.add(criteriaBuilder.equal(root.get("srm"), Long.valueOf(value)));
                         break;

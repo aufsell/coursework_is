@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 @AllArgsConstructor
 @RequiredArgsConstructor
 public class BeerDTO {
+
     private Long beerId;
 
     @NotNull(message = " beer name not be null")
@@ -22,6 +23,8 @@ public class BeerDTO {
 
     @NotNull (message = "Beer's fermentation type cannot be bull")
     private FermentationType fermentationType;
+
+    private Double averageRating;
 
     @NotNull (message = "Beer's srm cannot be bull")
     private Long srm;
@@ -53,4 +56,5 @@ public class BeerDTO {
         this.country = country;
         this.imagePath = imagePath;
     }
+
 }

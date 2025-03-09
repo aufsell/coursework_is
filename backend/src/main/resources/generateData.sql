@@ -59,18 +59,33 @@ i INT;
         random_average_rating DECIMAL(5, 2);
 BEGIN
 FOR i IN 51001..300000 LOOP
-                random_name := 'Beer_' || i;
                 random_price := ROUND((RANDOM() * 500 + 40)::NUMERIC, 2);
                 random_volume := ROUND((RANDOM() * 2 + 0.33)::NUMERIC, 2);
                 random_srm := ROUND((RANDOM() * 40 + 1)::NUMERIC, 2);
                 random_ibu := ROUND((RANDOM() * 100)::NUMERIC, 2);
                 random_abv := ROUND((RANDOM() * 15 + 1)::NUMERIC, 2);
                 random_og := ROUND((RANDOM() * 1.1 + 1)::NUMERIC, 3);
-                random_country := 'Country_' || (i % 100);
+                random_name := CASE (i % 8)
+                                       WHEN 0 THEN 'Corona'
+                                       WHEN 1 THEN 'Corona Extra'
+                                       WHEN 2 THEN 'Corona Premium'
+                                       WHEN 3 THEN 'Paulaner'
+                                       WHEN 4 THEN 'Paulaner Dark'
+                                       WHEN 5 THEN 'Paulaner Premium'
+                                       WHEN 6 THEN 'Baltika'
+                                       WHEN 7 THEN 'Baltika Dark'
+                                       ELSE 'Oxota 9'
+                END;
+                random_country := CASE (i % 4)
+                                   WHEN 0 THEN 'Germany'
+                                   WHEN 1 THEN 'Italy'
+                                   WHEN 0 THEN 'Russia'
+                                   ELSE 'USA'
+                    END;
                 random_image_path := CASE
-                                         WHEN RANDOM() < 0.33 THEN 'http://localhost:9000/pipivo/beer_images/beer_1.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=lW4rzRQue17OqXNFYiQB%2F20250306%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20250306T155338Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=f02e2255d67604a16dae7d7e1e6af7abc8dd813d7582d29f9af4afd4a17427c2'
-                                         WHEN RANDOM() < 0.66 THEN 'http://localhost:9000/pipivo/beer_images/beer_2.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=lW4rzRQue17OqXNFYiQB%2F20250306%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20250306T155338Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=6b40019984a39364c6c9aba5665196d8d074dd129c8617b17ad24ac1623cdfd7'
-                                         ELSE 'http://localhost:9000/pipivo/beer_images/beer_3.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=lW4rzRQue17OqXNFYiQB%2F20250306%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20250306T155338Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=25152957fa52010317bb68a79e7b5c91fb24b2929895fabe20ecc59e3315210b'
+                                         WHEN RANDOM() < 0.33 THEN 'http://localhost:9000/pipivo/beer_images/beer_1.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=lW4rzRQue17OqXNFYiQB%2F20250309%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20250309T183951Z&X-Amz-Expires=432000&X-Amz-SignedHeaders=host&X-Amz-Signature=34fe5033b3dc38a6cd72628dc848c87a2d527fea94e994d0c1a73b5dcbc62480'
+                                         WHEN RANDOM() < 0.66 THEN 'http://localhost:9000/pipivo/beer_images/beer_2.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=lW4rzRQue17OqXNFYiQB%2F20250309%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20250309T183951Z&X-Amz-Expires=432000&X-Amz-SignedHeaders=host&X-Amz-Signature=4fbe5db64b7c0ea334f2322ce8c4eeb8e67410f4bb9c4f7899d6ee6aa70b5cef'
+                                         ELSE 'http://localhost:9000/pipivo/beer_images/beer_3.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=lW4rzRQue17OqXNFYiQB%2F20250309%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20250309T183951Z&X-Amz-Expires=432000&X-Amz-SignedHeaders=host&X-Amz-Signature=07dcbf0c2c57ea0f6fd0fbd645fab68ac291482c33b49e29ff793179e25fa7ed'
                     END;
 
                 random_fermentation_type := i % 4 +1;
@@ -100,6 +115,7 @@ VALUES (
            random_og,
            random_country,
            random_image_path,
+
            random_average_rating
        );
 END LOOP;

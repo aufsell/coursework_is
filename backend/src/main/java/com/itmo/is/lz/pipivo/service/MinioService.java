@@ -48,12 +48,14 @@ public class MinioService {
 
     public String generateUrl(String fileName) {
         try {
-            return minioClient.getPresignedObjectUrl(GetPresignedObjectUrlArgs.builder()
+            String url = minioClient.getPresignedObjectUrl(GetPresignedObjectUrlArgs.builder()
                     .bucket(bucketName)
                     .object(fileName)
                     .method(Method.GET)
-                    .expiry(1, TimeUnit.DAYS)
+                    .expiry(5, TimeUnit.DAYS)
                     .build());
+            System.out.println(url);
+            return url;
         } catch (Exception e) {
             throw new RuntimeException("Ошибка при генерации ссылки MinIO", e);
         }

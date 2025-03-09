@@ -6,7 +6,7 @@
     <div class="ratings-count">{{ beer.reviewCount }} отзывов</div>
     <div class="price">{{ beer.price.toFixed(2) }} ₽</div>
   </div>
-    <div class="beer-details">{{ beer.beerName }}, {{ beer.country }}</div>
+    <div class="beer-details">{{ beer.beerName || beer.name}}, {{ beer.country }}</div>
   </div>
 </template>
 
@@ -24,8 +24,8 @@ export default {
       return '★'.repeat(fullStars) + '½'.repeat(halfStar) + '☆'.repeat(emptyStars);
     },
     goToBeerDetails() {
-      this.$router.push('/beer' , { params: { beerId: this.beer.beerId } });
-    }
+  this.$router.push({ name: 'BeerDetail', params: { beerId: this.beer.beerId } });
+}
   }
 }
 </script>

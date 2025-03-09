@@ -14,6 +14,7 @@ import com.itmo.is.lz.pipivo.repository.BeerRepository;
 import com.itmo.is.lz.pipivo.repository.FavouriteBeerRepository;
 import com.itmo.is.lz.pipivo.repository.ReviewsRepository;
 import com.itmo.is.lz.pipivo.specification.BeerSpecification;
+import com.itmo.is.lz.pipivo.specification.BeerSpecificationFilters;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -27,6 +28,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -56,6 +58,7 @@ public class BeerService {
         beerDTO.setName(beer.getName());
         beerDTO.setPrice(beer.getPrice());
         beerDTO.setVolume(beer.getVolume());
+        beerDTO.setAverageRating(beer.getAverageRating());
         beerDTO.setFermentationType(beer.getFermentationType());
         beerDTO.setSrm(beer.getSrm());
         beerDTO.setIbu(beer.getIbu());
@@ -67,13 +70,33 @@ public class BeerService {
         return beerDTO;
     }
 
+    public Page<BeerDTO> searchBeersWithFilters(
+            Double priceMin, Double priceMax,
+            Double ratingMin, Double ratingMax,
+            String name, Long srmMin, Long srmMax,
+            Long ibuMin, Long ibuMax,
+            Long abvMin, Long abvMax,
+            String country, String fermentationType, Pageable pageable) {
+
+        Specification<Beer> specification = BeerSpecificationFilters.filterBeers(
+                priceMin, priceMax,
+                ratingMin, ratingMax,
+                name, srmMin, srmMax,
+                ibuMin, ibuMax,
+                abvMin, abvMax,
+                country, fermentationType);
+        Page<Beer> beers = beerRepository.findAll(specification, pageable);
+        return beers.map(this::convertToDTO);
+    }
+
     public Page<BeerDTO> getBeers(Pageable pageable, Map<String, String> filters) {
         Specification<Beer> spec = BeerSpecification.withFilters(filters);
         return beerRepository.findAll(spec, pageable).map(beer ->
                 new BeerDTO(
                         beer.getId(), beer.getName(), beer.getPrice(), beer.getVolume(),
-                        beer.getFermentationType(), beer.getSrm(), beer.getIbu(),
-                        beer.getAbv(), beer.getOg(), beer.getCountry(), beer.getImagePath(),beer.getAverageRating())
+                        beer.getFermentationType(), beer.getAverageRating(), beer.getSrm(), beer.getIbu(),
+                        beer.getAbv(), beer.getOg(), beer.getCountry(), beer.getImagePath())
+
         );
     }
 
@@ -91,25 +114,38 @@ public class BeerService {
         Query query = new Query.Builder()
                 .bool(b -> {
                     filters.forEach((field, value) -> {
-                        // Проверяем тип значения и выбираем подходящий запрос
                         if (value instanceof String) {
-                            // Используем match для всех строковых полей для поиска по вхождениям
-                            b.must(m -> m.match(
-                                    match -> match
-                                            .field(field)
-                                            .query((String) value)
-                                            .analyzer(field.equals("name") ? "ngram_analyzer" : null) // Анализатор только для name
-                            ));
-                        } else if (value instanceof Number numberValue) {
-                            // Для числовых полей (abv, ibu, price и т.д.) используем range или term
-
-                            // Точное совпадение для чисел
-                                b.must(t -> t.term(
-                                        term -> term
+                            try {
+                                if (field.equals("id") || field.equals("abv") || field.equals("ibu") || field.equals("price")) {
+                                    double numericValue = Double.parseDouble((String) value);
+                                    b.must(t -> t.term(
+                                            term -> term
+                                                    .field(field)
+                                                    .value(numericValue)
+                                    ));
+                                } else {
+                                    b.must(m -> m.matchPhrasePrefix(
+                                            match -> match
+                                                    .field(field)
+                                                    .query((String) value)
+                                                    .analyzer(field.equals("name") ? "ngram_analyzer" : null)
+                                    ));
+                                }
+                            } catch (NumberFormatException e) {
+                                b.must(m -> m.matchPhrasePrefix(
+                                        match -> match
                                                 .field(field)
-                                                .value((FieldValue) JsonData.of(numberValue))
+                                                .query((String) value)
+                                                .analyzer(field.equals("name") ? "ngram_analyzer" : null)
                                 ));
                             }
+                        } else if (value instanceof Number numberValue) {
+                            b.must(t -> t.term(
+                                    term -> term
+                                            .field(field)
+                                            .value(numberValue.doubleValue())
+                            ));
+                        }
                     });
                     return b;
                 })
@@ -120,7 +156,7 @@ public class BeerService {
                 .query(query)
                 .build();
 
-        System.out.println("Taste profile updated for user");
+
 
         return elasticsearchClient.search(searchRequest, BeerDocument.class);
     }

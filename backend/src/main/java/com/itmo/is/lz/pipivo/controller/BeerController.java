@@ -4,10 +4,14 @@ import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import com.itmo.is.lz.pipivo.dto.BeerDTO;
 import com.itmo.is.lz.pipivo.dto.BeerReviewCountDTO;
+import com.itmo.is.lz.pipivo.model.Beer;
 import com.itmo.is.lz.pipivo.model.BeerDocument;
+import com.itmo.is.lz.pipivo.model.FermentationType;
+import com.itmo.is.lz.pipivo.repository.FermentationTypeRepository;
 import com.itmo.is.lz.pipivo.service.BeerService;
 import com.itmo.is.lz.pipivo.service.TasteProfileService;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.client.elc.ElasticsearchTemplate;
 import org.springframework.http.HttpStatus;
@@ -20,7 +24,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RestController
@@ -30,13 +33,16 @@ public class BeerController {
 
     private final ElasticsearchTemplate elasticsearchTemplate;
     private final ElasticsearchClient elasticsearchClient;
+    private final FermentationTypeRepository fermentationTypeRepository;
 
     private TasteProfileService tasteProfileService;
 
-    public BeerController(BeerService beerService, ElasticsearchTemplate elasticsearchTemplate, ElasticsearchClient elasticsearchClient) {
+    public BeerController(BeerService beerService, ElasticsearchTemplate elasticsearchTemplate, ElasticsearchClient elasticsearchClient, FermentationTypeRepository fermentationTypeRepository) {
+
         this.beerService = beerService;
         this.elasticsearchTemplate = elasticsearchTemplate;
         this.elasticsearchClient = elasticsearchClient;
+        this.fermentationTypeRepository = fermentationTypeRepository;
     }
 
 
@@ -50,6 +56,34 @@ public class BeerController {
     public ResponseEntity<Page<BeerDTO>> getBeers(Pageable pageable, @RequestParam Map<String, String> filters) {
         Page<BeerDTO> beers = beerService.getBeers(pageable, filters);
         return ResponseEntity.ok(beers);
+    }
+
+    @GetMapping("/search")
+    public Page<BeerDTO> searchBeers(
+            @RequestParam(required = false) Double priceMin,
+            @RequestParam(required = false) Double priceMax,
+            @RequestParam(required = false) Double ratingMin,
+            @RequestParam(required = false) Double ratingMax,
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) Long srmMin,
+            @RequestParam(required = false) Long srmMax,
+            @RequestParam(required = false) Long ibuMin,
+            @RequestParam(required = false) Long ibuMax,
+            @RequestParam(required = false) Long abvMin,
+            @RequestParam(required = false) Long abvMax,
+            @RequestParam(required = false) String country,
+            @RequestParam(required = false) String fermentationType,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        return beerService.searchBeersWithFilters(
+                priceMin, priceMax,
+                ratingMin, ratingMax,
+                name, srmMin, srmMax,
+                ibuMin, ibuMax,
+                abvMin, abvMax,
+                country, fermentationType, pageable);
     }
 
 
@@ -74,6 +108,10 @@ public class BeerController {
         return ResponseEntity.ok(beers);
     }
 
+    @GetMapping("/fermentationType/{id}")
+    public ResponseEntity<FermentationType> getFermentationType(@PathVariable Long id) {
+        return ResponseEntity.ok(fermentationTypeRepository.findById(id).orElseThrow());
+    }
 
 
     @GetMapping("/top")

@@ -1,8 +1,54 @@
 <template>
+    <header>
+      <div class="logo" @click="goToMain">PIPIVO</div>
+      <SearchBar/>
+    
+      <nav>
+        <ul>
+          <li class="active" @click="goToMain">Пиво</li>
+          <li @click="goToFilter">Фильтры</li>
+        </ul>
+      </nav>
+      <div class="nav-icons">
+        <img src="../assets/active.png" alt="Уведомления">
+        <img src="../assets/user.png" alt="Профиль">
+      </div>
+    </header>
+  </template>
+  
+  <script>
+
+  import SearchBar from './SearchBar.vue';
+  export default {
+    name: 'AppHeader',
+    components
+    : {
+      SearchBar
+    }
+  ,
+  
+  methods: {
+    goToFilter() {
+      this.$router.push('/filters');
+    },
+    goToMain() {
+      this.$router.push('/mainpage');
+  }
+}
+  }
+  </script>
+  
+  <style scoped>
+  header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #fff;
+    padding: 10px 0px;
   <header>
     <div class="logo">PIPIVO</div>
     <input type="text" placeholder="Поиск любого пива" class="search-bar" />
-
     <nav>
       <ul>
         <li class="active">Пиво</li>

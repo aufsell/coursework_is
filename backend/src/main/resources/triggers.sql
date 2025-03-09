@@ -261,7 +261,7 @@ EXECUTE FUNCTION update_recommendations_after_tasteprofile_update();
 CREATE OR REPLACE FUNCTION update_last_updated()
     RETURNS TRIGGER AS $$
 BEGIN
-    NEW.last_updated = CURRENT_TIMESTAMP;
+    NEW.last_updated = CURRENT_TIMESTAMP AT TIME ZONE 'Europe/Moscow';
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -368,4 +368,98 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER update_average_rating_trigger
     AFTER INSERT ON reviews
     FOR EACH ROW
+
+EXECUTE FUNCTION update_last_updated();
+
+
+CREATE OR REPLACE FUNCTION get_top_beers_for_limit(limit_ans INT)
+    RETURNS TABLE(beer_reviewed_id INT, review_count INT) AS
+$$
+BEGIN
+    RETURN QUERY
+        SELECT
+            beer_reviewed_id,
+            COUNT(*) AS review_count
+        FROM
+            reviews
+        GROUP BY
+            beer_reviewed_id
+        ORDER BY
+            review_count DESC
+        LIMIT limit_ans;
+END;
+$$ LANGUAGE plpgsql;
+
+SELECT reviews.beer_reviewed_id, COUNT(*) AS review_count
+FROM reviews
+GROUP BY beer_reviewed_id
+ORDER BY review_count DESC
+LIMIT 4;
+
+
+CREATE OR REPLACE FUNCTION get_top_beers()
+    RETURNS TABLE(
+                     beer_id INTEGER,
+                     beer_name VARCHAR,
+                     image_path VARCHAR,
+                     price NUMERIC(10, 2),
+                     average_rating NUMERIC(3, 2),
+                     country VARCHAR,
+                     review_count INTEGER
+                 )
+    LANGUAGE plpgsql
+AS
+$$
+BEGIN
+    RETURN QUERY
+        SELECT
+            b.id::integer AS beer_id,
+            b.name AS beer_name,
+            b.image_path,
+            b.price::numeric(10,2),
+            COALESCE(AVG(r.rating), 0)::numeric(3,2) AS average_rating,  -- Рассчитываем средний рейтинг
+            b.country,
+            COUNT(r.id)::integer AS review_count
+        FROM
+            reviews r
+                JOIN
+            beers b ON r.beer_reviewed_id = b.id  -- Выполняем join с таблицей beers
+        GROUP BY
+            b.id
+        ORDER BY
+            review_count DESC
+        LIMIT 4;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION calculate_average_rating(beer_id BIGINT)
+    RETURNS VOID AS
+$$
+DECLARE
+    avg_rating DOUBLE PRECISION;
+BEGIN
+    SELECT AVG(rating)
+    INTO avg_rating
+    FROM reviews
+    WHERE beer_reviewed_id = beer_id;
+
+    UPDATE beers
+    SET average_rating = avg_rating
+    WHERE id = beer_id;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION trigger_update_average_rating()
+    RETURNS TRIGGER AS
+$$
+BEGIN
+    PERFORM calculate_average_rating(NEW.beer_reviewed_id);
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER update_average_rating_trigger
+    AFTER INSERT ON reviews
+    FOR EACH ROW
 EXECUTE FUNCTION trigger_update_average_rating();
+
