@@ -43,6 +43,25 @@
         <p v-if="emailError" class="error-message">{{ emailError }}</p>
       </div>
 
+      <div class="input-group">
+        <label for="avatar">Аватар (.png):</label>
+        <input
+          type="file"
+          id="avatar"
+          accept=".png"
+          @change="handleFileUpload"
+        />
+        <p v-if="avatarError" class="error-message">{{ avatarError }}</p>
+      </div>
+
+      <button
+        class="upload-btn"
+        @click="uploadAvatar"
+        :disabled="!selectedFile"
+      >
+        Загрузить аватар
+      </button>
+
       <button
         class="save-btn"
         @click="updateProfile"
@@ -71,6 +90,8 @@ export default {
       isSaving: false,
       errorMessage: "",
       emailError: "",
+      selectedFile: null,
+      avatarError: "",
     };
   },
   computed: {
@@ -81,17 +102,14 @@ export default {
       return localStorage.getItem("userId");
     },
     isFormValid() {
-      this.validateEmail(); // Обновляем emailError перед проверкой
-      const valid =
+      this.validateEmail();
+      return (
         this.profile &&
         this.profile.firstName &&
         this.profile.lastName &&
         this.profile.country &&
-        (this.profile.email === "" || !this.emailError);
-      console.log("isFormValid:", valid);
-      console.log("profile:", this.profile);
-      console.log("emailError:", this.emailError);
-      return valid;
+        (this.profile.email === "" || !this.emailError)
+      );
     },
   },
   async created() {
@@ -145,6 +163,49 @@ export default {
 
       this.emailError = "";
       return true;
+    },
+    handleFileUpload(event) {
+      const file = event.target.files[0];
+
+      if (!file) {
+        this.avatarError = "Выберите файл.";
+        this.selectedFile = null;
+        return;
+      }
+
+      if (!file.name.toLowerCase().endsWith(".png")) {
+        this.avatarError = "Файл должен быть в формате .png";
+        this.selectedFile = null;
+        return;
+      }
+
+      this.avatarError = "";
+      this.selectedFile = file;
+    },
+    async uploadAvatar() {
+      if (!this.selectedFile) {
+        this.avatarError = "Выберите файл.";
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("file", this.selectedFile);
+
+      try {
+        await axios.post(
+          `http://localhost:7777/api/v1/profile/${this.profileUserId}/avatar`,
+          formData,
+          {
+            withCredentials: true,
+            headers: { "Content-Type": "multipart/form-data" },
+          }
+        );
+        alert("Аватар загружен успешно!");
+        this.selectedFile = null;
+      } catch (error) {
+        this.avatarError = "Ошибка загрузки. Попробуйте снова.";
+        console.error("Ошибка при загрузке аватара:", error);
+      }
     },
     async updateProfile() {
       if (!this.validateEmail()) {
@@ -204,7 +265,8 @@ export default {
   box-sizing: border-box;
 }
 
-.save-btn {
+.save-btn,
+.upload-btn {
   background-color: #4caf50;
   color: white;
   padding: 10px 20px;
@@ -216,14 +278,19 @@ export default {
   transition: background-color 0.2s ease;
 }
 
+.upload-btn {
+  background-color: #007bff;
+}
+
+.upload-btn:hover:not(:disabled) {
+  background-color: #0056b3;
+}
+
 .save-btn:hover:not(:disabled) {
   background-color: #45a049;
 }
 
-.save-btn:active:not(:disabled) {
-  background-color: #388e3c;
-}
-
+.upload-btn:disabled,
 .save-btn:disabled {
   background-color: #aaa;
   cursor: not-allowed;

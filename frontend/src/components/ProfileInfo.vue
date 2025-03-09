@@ -288,4 +288,22 @@ export default {
 .edit-btn:active {
   background-color: #388e3c;
 }
+
+.avatar {
+  width: 140px;
+  height: 140px;
+  background: gray;
+  border-radius: 50%;
+  margin: 0 auto;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 </style>
