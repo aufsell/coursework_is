@@ -29,7 +29,11 @@
           <span class="stat-value">{{ followersCount }}</span>
         </div>
         <div class="stat-box-arrow">
-          <img src="../assets/arrow.png" alt="раскрыть" />
+          <img
+            src="../assets/arrow.png"
+            alt="раскрыть"
+            @click="goToSubscribers"
+          />
         </div>
       </div>
       <div class="stat-box">
@@ -38,7 +42,11 @@
           <span class="stat-value">{{ followingsCount }}</span>
         </div>
         <div class="stat-box-arrow">
-          <img src="../assets/arrow.png" alt="раскрыть" />
+          <img
+            src="../assets/arrow.png"
+            alt="раскрыть"
+            @click="goToFollowers"
+          />
         </div>
       </div>
     </div>
@@ -158,6 +166,12 @@ export default {
         }
       }
     },
+    goToFollowers() {
+      this.$router.push(`/profile/${this.profileUserId}/followers`);
+    },
+    goToSubscribers() {
+      this.$router.push(`/profile/${this.profileUserId}/subscribers`);
+    },
   },
 };
 </script>
@@ -231,5 +245,11 @@ export default {
 
 .clicked {
   transform: scale(0.9);
+}
+.stat-box-arrow img {
+  cursor: pointer;
+}
+.stat-box-arrow img:hover {
+  transform: scale(1.3);
 }
 </style>
