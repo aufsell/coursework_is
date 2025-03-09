@@ -111,4 +111,8 @@ public class ReviewsService {
         boolean isAdmin = user.getRole().getName().equals("ADMIN");
         return ((user.getId().equals(getUser(review).getId())) || isAdmin);
     }
+
+    public Long getReviewsCountByUserId(Long userId) {
+        return userReviewsRepository.getReviewsCountByUserId(userId);
+    }
 }

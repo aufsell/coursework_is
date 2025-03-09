@@ -86,4 +86,11 @@ public class UserService {
     }
 
 
+    public boolean checkCurrentUser(Long userId) {
+        String userName = getCurrentUsername();
+        System.out.println("Current user: "+ userName);
+        User user = userRepository.findByName(userName)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return user.getId().equals(userId);
+    }
 }

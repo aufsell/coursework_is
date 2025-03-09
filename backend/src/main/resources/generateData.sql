@@ -115,7 +115,8 @@ VALUES (
            random_og,
            random_country,
            random_image_path,
-            random_average_rating
+
+           random_average_rating
        );
 END LOOP;
 END $$;
@@ -184,9 +185,10 @@ SELECT COUNT(*) INTO beer_count FROM beers;
 SELECT COUNT(*) INTO user_count FROM users;
 
 FOR i IN 1..100000 LOOP
-                INSERT INTO reviews (beer_reviewed_id, rating, comment)
+                INSERT INTO reviews (beer_reviewed_id, created_at, rating, comment)
                 VALUES (
                            (i % beer_count) + 1,
+                           NOW(),
                            ROUND((RANDOM() * 5)::numeric, 1),
                            'Комментарий ' || i
                        );
@@ -215,30 +217,25 @@ DO $$
 
 DO $$
     DECLARE
-user_id INT;
+        v_user_id INT;
         fermentation_count INT;
-BEGIN
-SELECT COUNT(*) INTO fermentation_count FROM fermentation_types;
+    BEGIN
+        SELECT COUNT(*) INTO fermentation_count FROM fermentation_types;
 
-FOR user_id IN (SELECT id FROM users) LOOP
-                INSERT INTO tasteprofiles (
-                    user_id,
-                    ibu_pref,
-                    srm_pref,
-                    abv_pref,
-                    og_pref,
-                    fermentation_type,
-                    price
-                )
-                VALUES (
-                           user_id,
-                           ROUND((RANDOM() * 100)::numeric, 1),
-                           ROUND((RANDOM() * 40)::numeric, 1),
-                           ROUND((RANDOM() * 15)::numeric, 1),
-                           ROUND((RANDOM() * 1.1)::numeric, 2),
-                           (user_id % fermentation_count) + 1,
-                           ROUND((RANDOM() * 50 + 1)::numeric, 2)
+        IF fermentation_count = 0 THEN
+            RAISE EXCEPTION 'No fermentation types found in fermentation_types table';
+        END IF;
 
-                       );
-END LOOP;
-END $$;
+        FOR v_user_id IN (SELECT id FROM users) LOOP
+                UPDATE tasteprofiles
+                SET
+                    ibu_pref = ROUND((RANDOM() * 100)::numeric, 1),
+                    srm_pref = ROUND((RANDOM() * 40)::numeric, 1),
+                    abv_pref = ROUND((RANDOM() * 15)::numeric, 1),
+                    og_pref = ROUND((RANDOM() * 1.1)::numeric, 2),
+                    fermentation_type = (v_user_id % fermentation_count) + 1,
+                    price = ROUND((RANDOM() * 50 + 1)::numeric, 2)
+                WHERE tasteprofiles.user_id = v_user_id;
+
+            END LOOP;
+    END $$;

@@ -2,8 +2,6 @@ package com.itmo.is.lz.pipivo.service;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.FieldValue;
-import co.elastic.clients.elasticsearch._types.SortOptions;
-import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
@@ -68,6 +66,7 @@ public class BeerService {
         beerDTO.setOg(beer.getOg());
         beerDTO.setCountry(beer.getCountry());
         beerDTO.setImagePath(beer.getImagePath());
+        beerDTO.setAverageRating(beer.getAverageRating());
         return beerDTO;
     }
 
@@ -97,6 +96,7 @@ public class BeerService {
                         beer.getId(), beer.getName(), beer.getPrice(), beer.getVolume(),
                         beer.getFermentationType(), beer.getAverageRating(), beer.getSrm(), beer.getIbu(),
                         beer.getAbv(), beer.getOg(), beer.getCountry(), beer.getImagePath())
+
         );
     }
 
@@ -156,7 +156,8 @@ public class BeerService {
                 .query(query)
                 .build();
 
-        System.out.println("Search Request: " + searchRequest);
+
+
         return elasticsearchClient.search(searchRequest, BeerDocument.class);
     }
 

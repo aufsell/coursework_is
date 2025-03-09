@@ -1,6 +1,6 @@
+
 import { createApp } from 'vue'
 import App from './App.vue'
-
 import { createRouter, createWebHistory } from 'vue-router'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'
@@ -10,6 +10,7 @@ import BeerDetail from './components/BeerDetail.vue'
 
 
 const routes = [
+
   { path: '/', component: LoginPage },
   { path: '/login', component: LoginPage },
   { path: '/register', component: RegisterPage },
@@ -22,11 +23,44 @@ const routes = [
   },
   { path: '/searchbar', component: () => import('./components/SearchBar.vue')},
   { path : '/filters', component: () => import('./components/BeerFilterComponent.vue')},
-]
+  {
+    path: "/profile/:profileUserId",
+    component: () => import("./components/ProfilePage.vue"),
+  },
+  {
+    path: "/profile/:profileUserId/subscribers",
+    component: () => import("./components/Subscribers.vue"),
+    props: true,
+  },
+  {
+    path: "/profile/:profileUserId/followers",
+    component: () => import("./components/Folowers.vue"),
+    props: true,
+  },
+  {
+    path: "/profile/:profileUserId/edit",
+    component: () => import("./components/EditProfile.vue"),
+    props: true,
+  },
+];
+
 
 const router = createRouter({
   history: createWebHistory(),
-  routes
-})
+  routes,
+});
 
-createApp(App).use(router).mount('#app')
+router.beforeEach((to, from, next) => {
+  if (to.path === "/profile") {
+    const currentUserId = localStorage.getItem("userId");
+    if (currentUserId) {
+      next({ path: `/profile/${currentUserId}`, replace: true });
+    } else {
+      next("/login");
+    }
+  } else {
+    next();
+  }
+});
+
+createApp(App).use(router).mount("#app");

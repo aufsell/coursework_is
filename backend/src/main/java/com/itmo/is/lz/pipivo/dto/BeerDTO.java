@@ -42,6 +42,8 @@ public class BeerDTO {
 
     private String imagePath;
 
+    private Double averageRating;
+
     public BeerDTO(String name, Double price, Double volume, FermentationType fermentationType, Long srm, Long ibu, Long abv, Long og, String country, String imagePath) {
         this.name = name;
         this.price = price;
