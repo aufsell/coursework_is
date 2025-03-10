@@ -3,6 +3,7 @@ package com.itmo.is.lz.pipivo.service;
 import com.itmo.is.lz.pipivo.model.Beer;
 import com.itmo.is.lz.pipivo.repository.BeerRepository;
 import com.itmo.is.lz.pipivo.repository.FermentationTypeRepository;
+import jakarta.transaction.Transactional;
 import org.apache.commons.io.FileUtils;
 import org.apache.poi.ss.usermodel.*;
 import org.springframework.beans.factory.annotation.Value;
@@ -83,7 +84,7 @@ public class ImportService {
             }
         }
     }
-
+    @Transactional
     public void processXLSX (MultipartFile xlsxFile, Path imageFolder) {
         try (Workbook workbook = WorkbookFactory.create(xlsxFile.getInputStream())) {
             Sheet sheet = workbook.getSheetAt(0);
