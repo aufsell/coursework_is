@@ -1,47 +1,65 @@
 <template>
-    <header>
-      <div class="logo" @click="goToMain">PIPIVO</div>
-      <SearchBar/>
-    
-      <nav>
-        <ul>
-          <li class="active" @click="goToMain">Пиво</li>
-          <li @click="goToFilter">Фильтры</li>
-        </ul>
-      </nav>
-      <div class="nav-icons">
-        <img src="../assets/active.png" alt="Уведомления">
-        <img src="../assets/user.png" alt="Профиль" @click="goToProfile">
-      </div>
-    </header>
-  </template>
-  
-  <script>
+  <header>
+    <div class="logo" @click="goToMain">PIPIVO</div>
+    <SearchBar />
 
-  import SearchBar from './SearchBar.vue';
-  export default {
-    name: 'AppHeader',
-    components
-    : {
-      SearchBar
-    }
-  ,
-  
+    <nav>
+      <ul>
+        <li class="active" @click="goToMain">Пиво</li>
+        <li @click="goToFilter">Фильтры</li>
+      </ul>
+    </nav>
+    <div class="nav-icons">
+      <img
+        src="../assets/active.png"
+        alt="Уведомления"
+        @click="toggleNotificationModal"
+      />
+      <img src="../assets/user.png" alt="Профиль" @click="goToProfile" />
+    </div>
+
+    <!-- Notification Modal -->
+    <notification-modal
+      :isOpen="isModalOpen"
+      :onClose="closeNotificationModal"
+    />
+  </header>
+</template>
+
+<script>
+import SearchBar from "./SearchBar.vue";
+import NotificationModal from "./NotificationModal.vue";
+
+export default {
+  name: "AppHeader",
+  components: {
+    SearchBar,
+    NotificationModal,
+  },
+  data() {
+    return {
+      isModalOpen: false,
+    };
+  },
   methods: {
     goToFilter() {
-      this.$router.push('/filters');
+      this.$router.push("/filters");
     },
     goToProfile() {
       this.$router.push("/profile");
     },
     goToMain() {
-      this.$router.push('/mainpage');
-  }
-}
-  }
-  </script>
-  
-
+      this.$router.push("/mainpage");
+    },
+    toggleNotificationModal() {
+      this.isModalOpen = !this.isModalOpen;
+    },
+    closeNotificationModal() {
+      this.isModalOpen = false;
+    },
+  },
+};
+</script>
 
 <style scoped>
 header {

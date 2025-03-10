@@ -42,7 +42,7 @@ export default {
       return localStorage.getItem("userId");
     },
     favouriteBeers() {
-      return this.beers.slice(0, 4);
+      return this.beers.slice(0, 8);
     },
   },
   watch: {
@@ -111,7 +111,7 @@ h2 img {
 
 .beer-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, 2fr);
   gap: 20px;
 }
 
