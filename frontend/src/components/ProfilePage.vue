@@ -16,11 +16,11 @@
 .main {
   background-color: red;
   position: absolute;
-  width: 100vw;
 }
 .body {
   display: flex;
   flex-direction: column;
+  width: 100vw;
 }
 
 .profile-info {
