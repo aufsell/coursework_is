@@ -252,12 +252,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE TRIGGER trigger_update_recommendations
-    AFTER UPDATE OR INSERT ON tasteprofiles
-    FOR EACH ROW
-EXECUTE FUNCTION update_recommendations_after_tasteprofile_update();
-
-
 CREATE OR REPLACE FUNCTION update_last_updated()
     RETURNS TRIGGER AS $$
 BEGIN
@@ -365,13 +359,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER update_average_rating_trigger
-    AFTER INSERT ON reviews
-    FOR EACH ROW
-
-EXECUTE FUNCTION update_last_updated();
-
-
 CREATE OR REPLACE FUNCTION get_top_beers_for_limit(limit_ans INT)
     RETURNS TABLE(beer_reviewed_id INT, review_count INT) AS
 $$
@@ -432,22 +419,7 @@ BEGIN
 END;
 $$;
 
-CREATE OR REPLACE FUNCTION calculate_average_rating(beer_id BIGINT)
-    RETURNS VOID AS
-$$
-DECLARE
-    avg_rating DOUBLE PRECISION;
-BEGIN
-    SELECT AVG(rating)
-    INTO avg_rating
-    FROM reviews
-    WHERE beer_reviewed_id = beer_id;
 
-    UPDATE beers
-    SET average_rating = avg_rating
-    WHERE id = beer_id;
-END;
-$$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION trigger_update_average_rating()
     RETURNS TRIGGER AS
@@ -457,6 +429,21 @@ BEGIN
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
+
+
+
+
+
+
+
+
+
+
+CREATE OR REPLACE TRIGGER trigger_update_recommendations
+    AFTER UPDATE OR INSERT ON tasteprofiles
+    FOR EACH ROW
+EXECUTE FUNCTION update_recommendations_after_tasteprofile_update();
+
 
 CREATE TRIGGER update_average_rating_trigger
     AFTER INSERT ON reviews

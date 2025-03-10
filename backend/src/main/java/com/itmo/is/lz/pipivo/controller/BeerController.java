@@ -35,14 +35,15 @@ public class BeerController {
     private final ElasticsearchClient elasticsearchClient;
     private final FermentationTypeRepository fermentationTypeRepository;
 
-    private TasteProfileService tasteProfileService;
+    private final TasteProfileService tasteProfileService;
 
-    public BeerController(BeerService beerService, ElasticsearchTemplate elasticsearchTemplate, ElasticsearchClient elasticsearchClient, FermentationTypeRepository fermentationTypeRepository) {
+    public BeerController(BeerService beerService, ElasticsearchTemplate elasticsearchTemplate, ElasticsearchClient elasticsearchClient, FermentationTypeRepository fermentationTypeRepository, TasteProfileService tasteProfileService) {
 
         this.beerService = beerService;
         this.elasticsearchTemplate = elasticsearchTemplate;
         this.elasticsearchClient = elasticsearchClient;
         this.fermentationTypeRepository = fermentationTypeRepository;
+        this.tasteProfileService = tasteProfileService;
     }
 
 
