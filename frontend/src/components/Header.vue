@@ -11,7 +11,7 @@
       </nav>
       <div class="nav-icons">
         <img src="../assets/active.png" alt="Уведомления">
-        <img src="../assets/user.png" alt="Профиль">
+        <img src="../assets/user.png" alt="Профиль" @click="goToProfile">
       </div>
     </header>
   </template>
@@ -31,6 +31,9 @@
     goToFilter() {
       this.$router.push('/filters');
     },
+    goToProfile() {
+      this.$router.push("/profile");
+    },
     goToMain() {
       this.$router.push('/mainpage');
   }
@@ -38,40 +41,7 @@
   }
   </script>
   
-  <style scoped>
-  header {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #fff;
-    padding: 10px 0px;
-  <header>
-    <div class="logo">PIPIVO</div>
-    <input type="text" placeholder="Поиск любого пива" class="search-bar" />
-    <nav>
-      <ul>
-        <li class="active">Пиво</li>
-        <li>Фильтры</li>
-      </ul>
-    </nav>
-    <div class="nav-icons">
-      <img src="../assets/active.png" alt="Уведомления" />
-      <img src="../assets/user.png" alt="Профиль" @click="goToProfile" />
-    </div>
-  </header>
-</template>
 
-<script>
-export default {
-  name: "AppHeader",
-  methods: {
-    goToProfile() {
-      this.$router.push("/profile");
-    },
-  },
-};
-</script>
 
 <style scoped>
 header {
