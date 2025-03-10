@@ -2,7 +2,17 @@
   <section class="profile-info">
     <div class="profile-card">
       <div class="avatar">
-        <img v-if="profile.avatarPath" :src="profile.avatarPath" alt="Avatar" />
+        <img
+          :src="
+            profile.avatarPath
+              ? profile.avatarPath
+              : require('@/assets/user.png')
+          "
+          :alt="
+            profile.avatarPath ? 'Аватар пользователя' : 'Аватар по умолчанию'
+          "
+          class="avatar-image"
+        />
       </div>
       <div>
         <h1 class="username">{{ profile.name || "Без имени" }}</h1>
@@ -228,7 +238,7 @@ export default {
 .avatar {
   width: 140px;
   height: 140px;
-  background: gray;
+  background: white;
   border-radius: 50%;
   margin: 0 auto;
 }
@@ -288,7 +298,7 @@ export default {
 .avatar {
   width: 140px;
   height: 140px;
-  background: gray;
+  background: white;
   border-radius: 50%;
   margin: 0 auto;
   overflow: hidden;

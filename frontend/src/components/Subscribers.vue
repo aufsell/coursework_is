@@ -44,7 +44,7 @@ export default {
       this.subscribers = response.data.map((subscriber) => ({
         userId: subscriber.profileId,
         username: subscriber.name,
-        avatarPath: subscriber.avatarPath || "/default-avatar.png",
+        avatarPath: subscriber.avatarPath,
       }));
     } catch (error) {
       console.error("Ошибка при загрузке подписчиков:", error);

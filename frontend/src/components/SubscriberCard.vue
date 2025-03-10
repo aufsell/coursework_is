@@ -1,7 +1,14 @@
 <template>
   <div class="subscriber-card" @click="goToProfile">
     <div class="avatar">
-      <img :src="subscriber.avatarPath" :alt="subscriber.username" />
+      <img
+        :src="
+          subscriber.avatarPath
+            ? subscriber.avatarPath
+            : require('@/assets/user.png')
+        "
+        class="avatar-image"
+      />
     </div>
     <div class="username">{{ subscriber.username }}</div>
   </div>

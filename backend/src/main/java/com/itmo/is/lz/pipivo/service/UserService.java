@@ -93,4 +93,8 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
         return user.getId().equals(userId);
     }
+
+    public boolean isFavourite(Long id, Long beerId) {
+        return favouriteBeerRepository.exists(id, beerId);
+    }
 }

@@ -1,7 +1,7 @@
 <template>
   <div class="review-card">
     <div class="review-header">
-      <div class="beer-container">
+      <div class="beer-container" @click="goToBeerDetails">
         <img
           :src="review.beer.imagePath"
           :alt="review.beer.beerName"
@@ -39,6 +39,12 @@ export default {
       return (
         "★".repeat(fullStars) + "½".repeat(halfStar) + "☆".repeat(emptyStars)
       );
+    },
+    goToBeerDetails() {
+      this.$router.push({
+        name: "BeerDetail",
+        params: { beerId: this.review.beer.beerId },
+      });
     },
   },
 };

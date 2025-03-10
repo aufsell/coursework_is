@@ -48,4 +48,12 @@ public class FavouriteController {
         return ResponseEntity.ok(beers);
     }
 
+    @GetMapping("/{beerId}/isFavourite")
+    public ResponseEntity<Boolean> isFavourite(@PathVariable Long beerId) {
+        String username = userService.getCurrentUsername();
+        User user = userService.getByUsername(username);
+        boolean isFavourite = userService.isFavourite(user.getId(), beerId);
+        return ResponseEntity.ok(isFavourite);
+    }
+
 }
