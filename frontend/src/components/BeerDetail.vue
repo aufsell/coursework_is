@@ -52,7 +52,10 @@
     <div v-if="reviews.length > 0">
       <div v-for="review in reviews" :key="review.reviewId" class="review-card">
         <div class="review-header">
-          <div class="avatar-container">
+          <div
+            class="avatar-container"
+            @click="goToUserProfile(review.profile.profileId)"
+          >
             <img
               :src="
                 review.profile.avatarPath
@@ -68,6 +71,7 @@
             />
           </div>
           <div class="review-info">
+            <div>{{ review.profile.name }}</div>
             <div class="review-date">{{ formatDate(review.created_at) }}</div>
             <div class="review-rating">
               {{ review.rating.toFixed(1) }}
@@ -147,8 +151,8 @@ export default {
         "★".repeat(fullStars) + "½".repeat(halfStar) + "☆".repeat(emptyStars)
       );
     },
-    goToUserProfile() {
-      this.$router.push({ path: `/profile/${this.review.profile.profileId}` });
+    goToUserProfile(profileId) {
+      this.$router.push({ path: `/profile/${profileId}` });
     },
     // Проверка, может ли пользователь редактировать отзыв
     canEditReview(review) {
@@ -400,6 +404,13 @@ button.favourite {
   width: 40vw;
   background-color: #ffffff;
   margin-left: 30vw;
+  margin-bottom: 30px;
+}
+.review-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
 }
 
 .review-card {
@@ -409,6 +420,8 @@ button.favourite {
   border-bottom: 1px solid #ddd;
   display: flex;
   align-items: center;
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 
 .review-header {
@@ -416,9 +429,6 @@ button.favourite {
   align-items: flex-start;
   gap: 15px;
   width: 100%;
-}
-
-.avatar-container {
 }
 
 .avatar-image {
@@ -519,5 +529,6 @@ button.favourite {
   margin-top: 10px;
   background-color: #ffc107;
   font-size: 14px;
+  align-items: right;
 }
 </style>
