@@ -39,3 +39,6 @@ backend/.sts4-cache
 bin/
 backend/!**/src/main/**/bin/
 backend/!**/src/test/**/bin/
+backend/minio-data/
+backend/.idea/compiler.xml
+backend/.idea/modules/pipivo.main.iml
