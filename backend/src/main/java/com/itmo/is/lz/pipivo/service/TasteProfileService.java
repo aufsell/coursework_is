@@ -97,9 +97,11 @@ public class TasteProfileService {
     public List<BeerDTO> getRecomendatedBeers() {
         String username = userService.getCurrentUsername();
         User user = userService.getByUsername(username);
-        List<BeerDTO> beers = recomendationRepository.getRecomendatedBeersIdsByUserId(user.getId()).stream()
-                .map(beerService::getBeerById)
+
+        return recomendationRepository.getRecomendatedBeersIdsByUserId(user.getId()).stream()
+                .map(id -> beerService.getBeerById(id.longValue()))
                 .collect(Collectors.toList());
-        return beers;
+
     }
+
 }

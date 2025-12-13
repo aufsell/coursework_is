@@ -4,7 +4,6 @@ DO $$
 DECLARE
 i INT;
     random_username VARCHAR(255);
-    random_email VARCHAR(255);
     random_password VARCHAR(255);
     random_first_name VARCHAR(255);
     random_last_name VARCHAR(255);
@@ -12,9 +11,8 @@ i INT;
     random_language VARCHAR(255);
     random_role_id INT;
 BEGIN
-FOR i IN 1..100000 LOOP
+FOR i IN 1..20 LOOP
         random_username := 'user_' || i;
-        random_email := 'user' || i || '@example.com';
         random_password := 'password_' || i;
         random_first_name := 'FirstName_' || i;
         random_last_name := 'LastName_' || i;
@@ -26,10 +24,9 @@ FOR i IN 1..100000 LOOP
 END;
         random_role_id := i % 3 +1;
 
-INSERT INTO users (username, email, password, first_name, last_name, country, preferred_language, roles_id, created_at)
+INSERT INTO users (username, password, first_name, last_name, country, preferred_language, roles_id, created_at)
 VALUES (
            random_username,
-           random_email,
            random_password,
            random_first_name,
            random_last_name,
@@ -58,7 +55,7 @@ i INT;
         random_fermentation_type INT;
         random_average_rating DECIMAL(5, 2);
 BEGIN
-FOR i IN 51001..300000 LOOP
+FOR i IN 1..100 LOOP
                 random_price := ROUND((RANDOM() * 500 + 40)::NUMERIC, 2);
                 random_volume := ROUND((RANDOM() * 2 + 0.33)::NUMERIC, 2);
                 random_srm := ROUND((RANDOM() * 40 + 1)::NUMERIC, 2);
@@ -79,7 +76,7 @@ FOR i IN 51001..300000 LOOP
                 random_country := CASE (i % 4)
                                    WHEN 0 THEN 'Germany'
                                    WHEN 1 THEN 'Italy'
-                                   WHEN 0 THEN 'Russia'
+                                   WHEN 2 THEN 'Russia'
                                    ELSE 'USA'
                     END;
                 random_image_path := CASE
@@ -123,7 +120,7 @@ END $$;
 
 DO $$
     DECLARE
-total_records INT := 100000;
+total_records INT := 20;
         user_count INT;
         i INT := 0;
         random_user_id INT;
@@ -159,7 +156,7 @@ i INT;
 BEGIN
 SELECT COUNT(*) INTO user_count FROM users;
 SELECT COUNT(*) INTO beer_count FROM beers;
-FOR i IN 1..20000 LOOP
+FOR i IN 1..20 LOOP
                 random_user_id := (RANDOM() * (user_count-1)+ 1);
                 random_beer_id := (RANDOM() * (beer_count-1) + 1);
 
@@ -184,7 +181,7 @@ BEGIN
 SELECT COUNT(*) INTO beer_count FROM beers;
 SELECT COUNT(*) INTO user_count FROM users;
 
-FOR i IN 1..100000 LOOP
+FOR i IN 1..20 LOOP
                 INSERT INTO reviews (beer_reviewed_id, created_at, rating, comment)
                 VALUES (
                            (i % beer_count) + 1,
@@ -204,7 +201,7 @@ DO $$
         SELECT COUNT(*) INTO review_count FROM reviews;
         SELECT COUNT(*) INTO user_count FROM users;
 
-        FOR i IN 1..100000 LOOP
+        FOR i IN 1..20 LOOP
                 INSERT INTO review_user (user_id, review_id)
                 VALUES (
                            (i % user_count) + 1,

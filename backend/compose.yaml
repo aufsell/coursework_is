@@ -10,7 +10,7 @@ services:
       MINIO_ROOT_PASSWORD: minioadmin123
     command: server /data --console-address ":9001"
     volumes:
-      - ./minio-data:/data
+      - minio-data:/data
     networks:
       - minio-network
   postgres:
@@ -43,6 +43,7 @@ services:
 volumes:
   esdata:
   pgdata:
+  minio-data:
 networks:
   minio-network:
     driver: bridge

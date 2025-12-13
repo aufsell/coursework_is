@@ -32,6 +32,8 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<UserRegistrationResponse> register(@RequestBody SignUpRequestDTO request) {
+
+        System.out.print("user" + request.getUsername() +"pwd"+ request.getPassword() + "req" + request.getRecaptcha());
 //        if (reCaptchaService.verifyRecaptcha(request.getRecaptcha())) {
             UserRegistrationResponse response = authService.signUp(request);
             return ResponseEntity.status(HttpStatus.CREATED).body(response);

@@ -19,20 +19,23 @@ CREATE TABLE beers (
                        abv DECIMAL(5, 2),
                        og DECIMAL(5, 2),
                        country VARCHAR(255),
-                       image_path VARCHAR(255)
+                       image_path TEXT,
+                       average_rating NUMERIC(3,2),
+                       last_updated TIMESTAMP
 );
 
 CREATE TABLE users (
                        id SERIAL PRIMARY KEY,
                        username VARCHAR(255) NOT NULL UNIQUE,
-                       email VARCHAR(255) NOT NULL UNIQUE,
                        password VARCHAR(255) NOT NULL,
+                       email VARCHAR(255),
                        first_name VARCHAR(255),
                        last_name VARCHAR(255),
                        country VARCHAR(255),
                        preferred_language VARCHAR(255),
                        roles_id INT REFERENCES roles(id),
-                       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                       avatar_path TEXT
 );
 
 CREATE TABLE reviews (

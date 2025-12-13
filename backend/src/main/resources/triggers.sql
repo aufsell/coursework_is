@@ -216,7 +216,8 @@ BEGIN
                             END AS DECIMAL) AS similarity_score
             FROM similar_users su
                      JOIN tasteprofiles tp ON tp.user_id = su.user_id
-                     JOIN beers b ON b.id = ANY(excluded_beer_ids) IS FALSE
+                     JOIN beers b ON NOT (b.id = ANY(COALESCE(excluded_beer_ids, '{}'::bigint[])))
+
             ORDER BY similarity_score ASC
             LIMIT 1;
 
@@ -300,12 +301,12 @@ EXECUTE FUNCTION create_taste_profile_on_user_insert();
 CREATE OR REPLACE FUNCTION get_most_popular_beer()
     RETURNS TABLE (
                       beer_id INTEGER,
-                      abv BIGINT,
-                      ibu BIGINT,
-                      og BIGINT,
-                      price NUMERIC(10, 2),
-                      srm BIGINT,
-                      fermentation_type BIGINT,
+                      abv NUMERIC(5,2),
+                      ibu NUMERIC(5,2),
+                      og  NUMERIC(5,2),
+                      price NUMERIC(10,2),
+                      srm NUMERIC(5,2),
+                      fermentation_type INT,
                       review_count INTEGER
                   )
     LANGUAGE plpgsql
@@ -313,33 +314,31 @@ AS $$
 BEGIN
     RETURN QUERY
         SELECT
-            b.id::integer AS beer_id,
-            b.abv,
-            b.ibu,
-            b.og,
-            b.price::NUMERIC(10, 2),
-            b.srm,
-            b.fermentation_type,
-            COUNT(r.id)::integer AS review_count
-        FROM
-            reviews r
-                JOIN
-            beers b ON r.beer_reviewed_id = b.id
-        GROUP BY
-            b.id, b.abv, b.ibu, b.og, b.price, b.srm, b.fermentation_type
-        ORDER BY
-            review_count DESC
+            b.id::integer                         AS beer_id,
+            b.abv::numeric(5,2)                   AS abv,
+            b.ibu::numeric(5,2)                   AS ibu,
+            b.og::numeric(5,2)                    AS og,
+            b.price::numeric(10,2)                AS price,
+            b.srm::numeric(5,2)                   AS srm,
+            b.fermentation_type::int              AS fermentation_type,
+            COUNT(r.id)::integer                  AS review_count
+        FROM reviews r
+                 JOIN beers b ON r.beer_reviewed_id = b.id
+        GROUP BY b.id, b.abv, b.ibu, b.og, b.price, b.srm, b.fermentation_type
+        ORDER BY review_count DESC
         LIMIT 1;
 END;
 $$;
+
+
 
 CREATE OR REPLACE FUNCTION calculate_average_rating(beer_id BIGINT)
     RETURNS VOID AS
 $$
 DECLARE
-    avg_rating DOUBLE PRECISION;
+    avg_rating NUMERIC(3,2);
 BEGIN
-    SELECT AVG(rating)
+    SELECT COALESCE(AVG(rating), 0)::numeric(3,2)
     INTO avg_rating
     FROM reviews
     WHERE beer_reviewed_id = beer_id;
@@ -349,6 +348,7 @@ BEGIN
     WHERE id = beer_id;
 END;
 $$ LANGUAGE plpgsql;
+
 
 CREATE OR REPLACE FUNCTION trigger_update_average_rating()
     RETURNS TRIGGER AS
@@ -395,29 +395,25 @@ CREATE OR REPLACE FUNCTION get_top_beers()
                      review_count INTEGER
                  )
     LANGUAGE plpgsql
-AS
-$$
+AS $$
 BEGIN
     RETURN QUERY
         SELECT
-            b.id::integer AS beer_id,
-            b.name AS beer_name,
-            b.image_path,
-            b.price::numeric(10,2),
-            COALESCE(AVG(r.rating), 0)::numeric(3,2) AS average_rating,  -- Рассчитываем средний рейтинг
-            b.country,
-            COUNT(r.id)::integer AS review_count
-        FROM
-            reviews r
-                JOIN
-            beers b ON r.beer_reviewed_id = b.id  -- Выполняем join с таблицей beers
-        GROUP BY
-            b.id
-        ORDER BY
-            review_count DESC
+            b.id::integer                                     AS beer_id,
+            b.name::varchar                                   AS beer_name,
+            b.image_path::varchar                              AS image_path,
+            b.price::numeric(10,2)                             AS price,
+            COALESCE(AVG(r.rating), 0)::numeric(3,2)          AS average_rating,
+            b.country::varchar                                 AS country,
+            COUNT(r.id)::integer                               AS review_count
+        FROM reviews r
+                 JOIN beers b ON r.beer_reviewed_id = b.id
+        GROUP BY b.id, b.name, b.image_path, b.price, b.country
+        ORDER BY review_count DESC
         LIMIT 4;
 END;
 $$;
+
 
 
 

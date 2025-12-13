@@ -13,11 +13,13 @@ public class RecommendationRepository {
     private EntityManager entityManager;
 
 
-    public List<Long> getRecomendatedBeersIdsByUserId(Long userId) {
+
+    public List<Number> getRecomendatedBeersIdsByUserId(Long userId) {
         return entityManager.createNativeQuery(
-                        "SELECT beer_id FROM recommendation  WHERE user_id = :userId"
+                        "SELECT beer_id FROM recommendation WHERE user_id = :userId"
                 )
                 .setParameter("userId", userId)
                 .getResultList();
     }
+
 }
