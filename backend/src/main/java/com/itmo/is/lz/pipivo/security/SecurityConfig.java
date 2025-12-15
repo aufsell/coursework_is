@@ -45,12 +45,12 @@ public class SecurityConfig {
                     return corsConfiguration;
                 }))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/signin", "/auth/signup").permitAll()
+                        .requestMatchers("/api/v1/auth/signin", "/api/v1/auth/signup").permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
-                        .defaultSuccessUrl("/user/home", true)
+                        .defaultSuccessUrl("http://localhost:8080/login", true)
                         .permitAll()
                 )
                 .logout(logout -> logout

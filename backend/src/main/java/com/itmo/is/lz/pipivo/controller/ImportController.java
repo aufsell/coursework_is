@@ -19,7 +19,7 @@ public class ImportController {
         this.importService = importService;
     }
 
-    @PostMapping("/import")
+    @PostMapping("/imports/beers")
     public ResponseEntity<String> importBeers(
             @RequestParam("file") MultipartFile excelFile,
             @RequestParam("photos") MultipartFile zipFile) throws Exception {

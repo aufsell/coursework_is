@@ -88,7 +88,7 @@ public class BeerController {
     }
 
 
-    @GetMapping("/beers/search")
+    @GetMapping("/search-index")
     public ResponseEntity<List<BeerDocument>> searchBeers(
             @RequestParam Map<String, String> params)
             throws IOException {
