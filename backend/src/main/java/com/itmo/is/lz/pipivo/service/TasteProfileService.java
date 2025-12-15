@@ -7,6 +7,7 @@ import com.itmo.is.lz.pipivo.model.User;
 import com.itmo.is.lz.pipivo.repository.RecommendationRepository;
 import com.itmo.is.lz.pipivo.repository.TasteProfileRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,7 +20,7 @@ public class TasteProfileService {
 
     private final BeerService beerService;
     private final TasteProfileRepository tasteProfileRepository;
-    private final UserService userService;
+    private final CurrentUserService currentUserService;
     private final RecommendationRepository recomendationRepository;
 
     private final double favouriteWeight = 0.7;
@@ -46,8 +47,7 @@ public class TasteProfileService {
     }
 
     public void updateTasteProfileBySearch(Map<String, Object> filters) {
-        String username = userService.getCurrentUsername();
-        User user = userService.getByUsername(username);
+        User user = currentUserService.getCurrentUser();
 
         TasteProfile tasteProfile = tasteProfileRepository.findByUserId(user.getId());
         if (tasteProfile == null) {
@@ -95,8 +95,7 @@ public class TasteProfileService {
 
 
     public List<BeerDTO> getRecomendatedBeers() {
-        String username = userService.getCurrentUsername();
-        User user = userService.getByUsername(username);
+        User user = currentUserService.getCurrentUser();
 
         return recomendationRepository.getRecomendatedBeersIdsByUserId(user.getId()).stream()
                 .map(id -> beerService.getBeerById(id.longValue()))

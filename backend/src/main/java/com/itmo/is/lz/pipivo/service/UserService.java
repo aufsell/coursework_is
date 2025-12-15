@@ -2,9 +2,12 @@ package com.itmo.is.lz.pipivo.service;
 
 import com.itmo.is.lz.pipivo.model.User;
 import com.itmo.is.lz.pipivo.repository.FavouriteBeerRepository;
+import com.itmo.is.lz.pipivo.repository.TasteProfileRepository;
 import com.itmo.is.lz.pipivo.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.elasticsearch.ResourceNotFoundException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,11 +16,13 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
     private final FavouriteBeerRepository favouriteBeerRepository;
+    private final TasteProfileService tasteProfileService;
 
     public UserDetailsService userDetailsService() {
         return this::loadUserByUsername;
@@ -58,7 +63,9 @@ public class UserService {
         }
 
         favouriteBeerRepository.addBeerToFavourites(user.getId(), beerId);
-        System.out.println("Beer "+ beerId+ " added in favourites for user "+ user.getId());
+        tasteProfileService.updateTasteProfileByFavourite(user.getId(), beerId);
+        log.info("Add beer to favourites successful. userId={}, beerId={}", user.getId(), beerId);
+
     }
 
     @Transactional
@@ -94,7 +101,11 @@ public class UserService {
         return user.getId().equals(userId);
     }
 
-    public boolean isFavourite(Long id, Long beerId) {
+    public boolean isFavourite(Long beerId) {
+        String userName = getCurrentUsername();
+        User user = userRepository.findByName(userName)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        Long id = user.getId();
         return favouriteBeerRepository.exists(id, beerId);
     }
 }

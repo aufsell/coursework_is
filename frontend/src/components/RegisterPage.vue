@@ -157,7 +157,7 @@
         }
   
         try {
-          const response = await axios.post('http://localhost:7777/auth/signup', {
+          const response = await axios.post('http://localhost:7777/api/v1/auth/signup', {
             username: this.username,
             password: this.password,
             recaptcha: recaptchaResponse,

@@ -231,7 +231,7 @@ export default {
     const fetchBeerData = async () => {
       try {
         const beerResponse = await axios.get(
-          `http://localhost:7777/api/v1/beer/beers/search?id=${props.beerId}`,
+          `http://localhost:7777/api/v1/beer/search-index?id=${props.beerId}`,
           { withCredentials: true }
         );
 

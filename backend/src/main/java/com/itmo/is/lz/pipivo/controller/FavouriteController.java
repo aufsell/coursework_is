@@ -5,13 +5,15 @@ import com.itmo.is.lz.pipivo.model.User;
 import com.itmo.is.lz.pipivo.service.BeerService;
 import com.itmo.is.lz.pipivo.service.TasteProfileService;
 import com.itmo.is.lz.pipivo.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Slf4j
 @RestController
-@RequestMapping("/api/v1/favourite")
+@RequestMapping("/api/v1/me/favourite")
 public class FavouriteController {
 
     private final UserService userService;
@@ -25,34 +27,28 @@ public class FavouriteController {
     }
     @PostMapping("/add/{beerId}")
     public ResponseEntity<Void> addBeerToFavourite(@PathVariable Long beerId) {
-        String username = userService.getCurrentUsername();
-        User user = userService.getByUsername(username);
-
+        log.info("Adding beer to favourites");
         userService.addBeerToFavourite(beerId);
-
-        tasteProfileService.updateTasteProfileByFavourite(user.getId(), beerId);
-        System.out.println("Taste profile updated for user "+ user.getId());
-
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("remove/{beerId}")
     public ResponseEntity<Void> removeBeerFromFavourite(@PathVariable Long beerId) {
+
         userService.removeBeerFromFavourite(beerId);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/{userId}")
     public ResponseEntity<List<BeerDTO>> getFavouriteByUserId(@PathVariable Long userId) {
+        log.info("Get favourites by userId={}", userId);
         List<BeerDTO> beers = beerService.getFavouriteByUserId(userId);
         return ResponseEntity.ok(beers);
     }
 
     @GetMapping("/{beerId}/isFavourite")
     public ResponseEntity<Boolean> isFavourite(@PathVariable Long beerId) {
-        String username = userService.getCurrentUsername();
-        User user = userService.getByUsername(username);
-        boolean isFavourite = userService.isFavourite(user.getId(), beerId);
+        boolean isFavourite = userService.isFavourite(beerId);
         return ResponseEntity.ok(isFavourite);
     }
 

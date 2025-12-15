@@ -54,7 +54,7 @@ export default {
     async loadFavouriteBeers() {
       try {
         const response = await axios.get(
-          `http://localhost:7777/api/v1/tasteProfile`,
+          `http://localhost:7777/api/v1/me/recommendations`,
           { withCredentials: true }
         );
         this.beers = toRaw(response.data).map((beer) => ({

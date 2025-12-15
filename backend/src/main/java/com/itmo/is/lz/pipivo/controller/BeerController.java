@@ -8,8 +8,10 @@ import com.itmo.is.lz.pipivo.model.Beer;
 import com.itmo.is.lz.pipivo.model.BeerDocument;
 import com.itmo.is.lz.pipivo.model.FermentationType;
 import com.itmo.is.lz.pipivo.repository.FermentationTypeRepository;
+import com.itmo.is.lz.pipivo.service.BeerSearchFacadeService;
 import com.itmo.is.lz.pipivo.service.BeerService;
 import com.itmo.is.lz.pipivo.service.TasteProfileService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -26,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/beer")
 public class BeerController {
@@ -34,28 +37,34 @@ public class BeerController {
     private final ElasticsearchTemplate elasticsearchTemplate;
     private final ElasticsearchClient elasticsearchClient;
     private final FermentationTypeRepository fermentationTypeRepository;
-
+    private final BeerSearchFacadeService beerSearchFacadeService;
     private final TasteProfileService tasteProfileService;
 
-    public BeerController(BeerService beerService, ElasticsearchTemplate elasticsearchTemplate, ElasticsearchClient elasticsearchClient, FermentationTypeRepository fermentationTypeRepository, TasteProfileService tasteProfileService) {
+    public BeerController(BeerService beerService, ElasticsearchTemplate elasticsearchTemplate, ElasticsearchClient elasticsearchClient, FermentationTypeRepository fermentationTypeRepository, BeerSearchFacadeService beerSearchFacadeService, TasteProfileService tasteProfileService) {
 
         this.beerService = beerService;
         this.elasticsearchTemplate = elasticsearchTemplate;
         this.elasticsearchClient = elasticsearchClient;
         this.fermentationTypeRepository = fermentationTypeRepository;
+        this.beerSearchFacadeService = beerSearchFacadeService;
         this.tasteProfileService = tasteProfileService;
     }
 
 
     @GetMapping ("/{beerId}")
     public ResponseEntity<BeerDTO> grantBeerId(@PathVariable Long beerId) {
+        log.info("Get beer by id. beerId={}", beerId);
         BeerDTO beerDTO = beerService.getBeerById(beerId);
+        log.debug("Beer fetched successfully. beerId={}", beerId);
         return ResponseEntity.status(HttpStatus.OK).body(beerDTO);
     }
 
     @GetMapping
     public ResponseEntity<Page<BeerDTO>> getBeers(Pageable pageable, @RequestParam Map<String, String> filters) {
+        log.info("Get beers list. page={}, size={}, filters={}",
+                pageable.getPageNumber(), pageable.getPageSize(), filters.keySet());
         Page<BeerDTO> beers = beerService.getBeers(pageable, filters);
+        log.debug("Beers list fetched. returnedElements={}", beers.getNumberOfElements());
         return ResponseEntity.ok(beers);
     }
 
@@ -76,22 +85,27 @@ public class BeerController {
             @RequestParam(required = false) String fermentationType,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
+        log.info("Search beers (DB). page={}, size={}, name={}, country={}, fermentationType={}",
+                page, size, name, country, fermentationType);
 
         Pageable pageable = PageRequest.of(page, size);
-        return beerService.searchBeersWithFilters(
+
+        Page<BeerDTO> result = beerService.searchBeersWithFilters(
                 priceMin, priceMax,
                 ratingMin, ratingMax,
                 name, srmMin, srmMax,
                 ibuMin, ibuMax,
                 abvMin, abvMax,
-                country, fermentationType, pageable);
+                country, fermentationType, pageable
+        );
+
+        log.debug("Search beers (DB) done. returnedElements={}", result.getNumberOfElements());
+        return result;
     }
 
 
-    @GetMapping("/beers/search")
-    public ResponseEntity<List<BeerDocument>> searchBeers(
-            @RequestParam Map<String, String> params)
-            throws IOException {
+    @GetMapping("/search-index")
+    public ResponseEntity<List<BeerDocument>> searchBeers(@RequestParam Map<String, String> params) throws IOException {
 
         Map<String, Object> filters = new HashMap<>();
         for (Map.Entry<String, String> entry : params.entrySet()) {
@@ -99,15 +113,16 @@ public class BeerController {
                 filters.put(entry.getKey(), entry.getValue());
             }
         }
-        SearchResponse<BeerDocument> response = beerService.searchBeers(filters);
-        System.out.println(response);
-        List<BeerDocument> beers = response.hits().hits().stream()
-                .map(Hit::source)
-                .collect(Collectors.toList());
 
-        tasteProfileService.updateTasteProfileBySearch(filters);
+        log.info("Search beers (index). filters={}", filters.keySet());
+
+        List<BeerDocument> beers = beerSearchFacadeService.searchIndexAndUpdateTasteProfile(filters);
+
+        log.debug("Search beers (index) done. returnedElements={}", beers.size());
         return ResponseEntity.ok(beers);
     }
+
+
 
     @GetMapping("/fermentationType/{id}")
     public ResponseEntity<FermentationType> getFermentationType(@PathVariable Long id) {
