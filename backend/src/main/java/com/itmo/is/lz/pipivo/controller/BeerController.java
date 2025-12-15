@@ -8,6 +8,7 @@ import com.itmo.is.lz.pipivo.model.Beer;
 import com.itmo.is.lz.pipivo.model.BeerDocument;
 import com.itmo.is.lz.pipivo.model.FermentationType;
 import com.itmo.is.lz.pipivo.repository.FermentationTypeRepository;
+import com.itmo.is.lz.pipivo.service.BeerSearchFacadeService;
 import com.itmo.is.lz.pipivo.service.BeerService;
 import com.itmo.is.lz.pipivo.service.TasteProfileService;
 import lombok.extern.slf4j.Slf4j;
@@ -36,15 +37,16 @@ public class BeerController {
     private final ElasticsearchTemplate elasticsearchTemplate;
     private final ElasticsearchClient elasticsearchClient;
     private final FermentationTypeRepository fermentationTypeRepository;
-
+    private final BeerSearchFacadeService beerSearchFacadeService;
     private final TasteProfileService tasteProfileService;
 
-    public BeerController(BeerService beerService, ElasticsearchTemplate elasticsearchTemplate, ElasticsearchClient elasticsearchClient, FermentationTypeRepository fermentationTypeRepository, TasteProfileService tasteProfileService) {
+    public BeerController(BeerService beerService, ElasticsearchTemplate elasticsearchTemplate, ElasticsearchClient elasticsearchClient, FermentationTypeRepository fermentationTypeRepository, BeerSearchFacadeService beerSearchFacadeService, TasteProfileService tasteProfileService) {
 
         this.beerService = beerService;
         this.elasticsearchTemplate = elasticsearchTemplate;
         this.elasticsearchClient = elasticsearchClient;
         this.fermentationTypeRepository = fermentationTypeRepository;
+        this.beerSearchFacadeService = beerSearchFacadeService;
         this.tasteProfileService = tasteProfileService;
     }
 
@@ -103,9 +105,7 @@ public class BeerController {
 
 
     @GetMapping("/search-index")
-    public ResponseEntity<List<BeerDocument>> searchBeers(
-            @RequestParam Map<String, String> params)
-            throws IOException {
+    public ResponseEntity<List<BeerDocument>> searchBeers(@RequestParam Map<String, String> params) throws IOException {
 
         Map<String, Object> filters = new HashMap<>();
         for (Map.Entry<String, String> entry : params.entrySet()) {
@@ -113,17 +113,16 @@ public class BeerController {
                 filters.put(entry.getKey(), entry.getValue());
             }
         }
-        log.info("Search beers (index). filters={}", filters.keySet());
-        SearchResponse<BeerDocument> response = beerService.searchBeers(filters);
 
-        List<BeerDocument> beers = response.hits().hits().stream()
-                .map(Hit::source)
-                .collect(Collectors.toList());
+        log.info("Search beers (index). filters={}", filters.keySet());
+
+        List<BeerDocument> beers = beerSearchFacadeService.searchIndexAndUpdateTasteProfile(filters);
+
         log.debug("Search beers (index) done. returnedElements={}", beers.size());
-        tasteProfileService.updateTasteProfileBySearch(filters);
-        log.info("Taste profile updated by search. filters={}", filters.keySet());
         return ResponseEntity.ok(beers);
     }
+
+
 
     @GetMapping("/fermentationType/{id}")
     public ResponseEntity<FermentationType> getFermentationType(@PathVariable Long id) {

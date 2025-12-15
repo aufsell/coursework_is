@@ -27,42 +27,34 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
-    private final AuthenticationManager authenticationManager;
 
     @Autowired
     private ReCaptchaService reCaptchaService;
 
     @PostMapping("/signup")
     public ResponseEntity<UserRegistrationResponse> register(@RequestBody SignUpRequestDTO request) {
-            log.info("Signup attempt username={}", request.getUsername());
-            UserRegistrationResponse response = authService.signUp(request);
-            log.info("Signup successful username={}", response.getUsername());
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        log.info("Signup attempt username={}", request.getUsername());
+
+        UserRegistrationResponse response = authService.signUp(request);
+
+        log.info("Signup successful username={}", response.getUsername());
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PostMapping("/signin")
     public ResponseEntity<UserRegistrationResponse> login(@RequestBody SignInRequestDTO request,
                                                           HttpServletRequest httpRequest) {
         log.info("Login attempt username={}", request.getUsername());
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
-        );
-        SecurityContext securityContext = SecurityContextHolder.getContext();
-        securityContext.setAuthentication(authentication);
-        HttpSession session = httpRequest.getSession(true);
-        session.setAttribute("SPRING_SECURITY_CONTEXT", securityContext);
+
         UserRegistrationResponse response = authService.signIn(request, httpRequest);
+
         log.info("Login successful username={}", request.getUsername());
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/logout")
     public ResponseEntity<String> logout(HttpServletRequest request, HttpServletResponse response) {
-        HttpSession session = request.getSession(false);
-        if (session != null) {
-            session.invalidate();
-        }
-        SecurityContextHolder.clearContext();
+        authService.logout(request);
         return ResponseEntity.ok("You have successfully logout the system");
     }
 }

@@ -24,7 +24,11 @@ public class AuthService {
     private final RoleRepository roleRepository;
     private final UserService userService;
 
-    public AuthService(AuthenticationManager authenticationManager, UserRepository userRepository, PasswordEncoder passwordEncoder, RoleRepository roleRepository, UserService userService) {
+    public AuthService(AuthenticationManager authenticationManager,
+                       UserRepository userRepository,
+                       PasswordEncoder passwordEncoder,
+                       RoleRepository roleRepository,
+                       UserService userService) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
@@ -36,17 +40,19 @@ public class AuthService {
         if (userRepository.findByName(request.getUsername()).isPresent()) {
             throw new RuntimeException("User with this name already exists");
         }
+
         User user = new User();
         Long roleId = 1L;
+
         user.setName(request.getUsername());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(roleRepository.findById(roleId)
                 .orElseThrow(() -> new RuntimeException("Role not found")));
+
         userService.create(user);
 
         return new UserRegistrationResponse(user.getId(), user.getName(), user.getRole().getName());
     }
-
 
     public UserRegistrationResponse signIn(SignInRequestDTO request, HttpServletRequest httpRequest) {
         Authentication authentication = authenticationManager.authenticate(
@@ -62,5 +68,13 @@ public class AuthService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         return new UserRegistrationResponse(user.getId(), user.getName(), user.getRole().getName());
+    }
+
+    public void logout(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.invalidate();
+        }
+        SecurityContextHolder.clearContext();
     }
 }

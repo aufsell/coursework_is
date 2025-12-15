@@ -27,14 +27,8 @@ public class FavouriteController {
     }
     @PostMapping("/add/{beerId}")
     public ResponseEntity<Void> addBeerToFavourite(@PathVariable Long beerId) {
-        String username = userService.getCurrentUsername();
-        User user = userService.getByUsername(username);
-        log.info("Add beer to favourites. userId={}, beerId={}", user.getId(), beerId);
+        log.info("Adding beer to favourites");
         userService.addBeerToFavourite(beerId);
-
-        tasteProfileService.updateTasteProfileByFavourite(user.getId(), beerId);
-        System.out.println("Taste profile updated for user "+ user.getId());
-
         return ResponseEntity.ok().build();
     }
 
@@ -54,10 +48,7 @@ public class FavouriteController {
 
     @GetMapping("/{beerId}/isFavourite")
     public ResponseEntity<Boolean> isFavourite(@PathVariable Long beerId) {
-        String username = userService.getCurrentUsername();
-        User user = userService.getByUsername(username);
-        log.debug("Check if beer is favourite. userId={}, beerId={}", user.getId(), beerId);
-        boolean isFavourite = userService.isFavourite(user.getId(), beerId);
+        boolean isFavourite = userService.isFavourite(beerId);
         return ResponseEntity.ok(isFavourite);
     }
 
