@@ -10,6 +10,7 @@ import com.itmo.is.lz.pipivo.model.FermentationType;
 import com.itmo.is.lz.pipivo.repository.FermentationTypeRepository;
 import com.itmo.is.lz.pipivo.service.BeerService;
 import com.itmo.is.lz.pipivo.service.TasteProfileService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -26,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/beer")
 public class BeerController {
@@ -49,13 +51,18 @@ public class BeerController {
 
     @GetMapping ("/{beerId}")
     public ResponseEntity<BeerDTO> grantBeerId(@PathVariable Long beerId) {
+        log.info("Get beer by id. beerId={}", beerId);
         BeerDTO beerDTO = beerService.getBeerById(beerId);
+        log.debug("Beer fetched successfully. beerId={}", beerId);
         return ResponseEntity.status(HttpStatus.OK).body(beerDTO);
     }
 
     @GetMapping
     public ResponseEntity<Page<BeerDTO>> getBeers(Pageable pageable, @RequestParam Map<String, String> filters) {
+        log.info("Get beers list. page={}, size={}, filters={}",
+                pageable.getPageNumber(), pageable.getPageSize(), filters.keySet());
         Page<BeerDTO> beers = beerService.getBeers(pageable, filters);
+        log.debug("Beers list fetched. returnedElements={}", beers.getNumberOfElements());
         return ResponseEntity.ok(beers);
     }
 
@@ -76,15 +83,22 @@ public class BeerController {
             @RequestParam(required = false) String fermentationType,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
+        log.info("Search beers (DB). page={}, size={}, name={}, country={}, fermentationType={}",
+                page, size, name, country, fermentationType);
 
         Pageable pageable = PageRequest.of(page, size);
-        return beerService.searchBeersWithFilters(
+
+        Page<BeerDTO> result = beerService.searchBeersWithFilters(
                 priceMin, priceMax,
                 ratingMin, ratingMax,
                 name, srmMin, srmMax,
                 ibuMin, ibuMax,
                 abvMin, abvMax,
-                country, fermentationType, pageable);
+                country, fermentationType, pageable
+        );
+
+        log.debug("Search beers (DB) done. returnedElements={}", result.getNumberOfElements());
+        return result;
     }
 
 
@@ -99,13 +113,15 @@ public class BeerController {
                 filters.put(entry.getKey(), entry.getValue());
             }
         }
+        log.info("Search beers (index). filters={}", filters.keySet());
         SearchResponse<BeerDocument> response = beerService.searchBeers(filters);
-        System.out.println(response);
+
         List<BeerDocument> beers = response.hits().hits().stream()
                 .map(Hit::source)
                 .collect(Collectors.toList());
-
+        log.debug("Search beers (index) done. returnedElements={}", beers.size());
         tasteProfileService.updateTasteProfileBySearch(filters);
+        log.info("Taste profile updated by search. filters={}", filters.keySet());
         return ResponseEntity.ok(beers);
     }
 

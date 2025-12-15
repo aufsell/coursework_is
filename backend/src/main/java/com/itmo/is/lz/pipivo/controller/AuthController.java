@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
@@ -32,37 +34,26 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<UserRegistrationResponse> register(@RequestBody SignUpRequestDTO request) {
-
-//        if (reCaptchaService.verifyRecaptcha(request.getRecaptcha())) {
+            log.info("Signup attempt username={}", request.getUsername());
             UserRegistrationResponse response = authService.signUp(request);
+            log.info("Signup successful username={}", response.getUsername());
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
-//        }
-//        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 
     @PostMapping("/signin")
     public ResponseEntity<UserRegistrationResponse> login(@RequestBody SignInRequestDTO request,
                                                           HttpServletRequest httpRequest) {
-
-//        if (reCaptchaService.verifyRecaptcha(request.getRecaptcha())) {
-
-
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
-            );
-
-            SecurityContext securityContext = SecurityContextHolder.getContext();
-            securityContext.setAuthentication(authentication);
-
-            HttpSession session = httpRequest.getSession(true);
-            session.setAttribute("SPRING_SECURITY_CONTEXT", securityContext);
-
-            UserRegistrationResponse response = authService.signIn(request, httpRequest);
-            return ResponseEntity.ok(response);
-//        }
-//        else{
-//            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-//        }
+        log.info("Login attempt username={}", request.getUsername());
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
+        );
+        SecurityContext securityContext = SecurityContextHolder.getContext();
+        securityContext.setAuthentication(authentication);
+        HttpSession session = httpRequest.getSession(true);
+        session.setAttribute("SPRING_SECURITY_CONTEXT", securityContext);
+        UserRegistrationResponse response = authService.signIn(request, httpRequest);
+        log.info("Login successful username={}", request.getUsername());
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/logout")
