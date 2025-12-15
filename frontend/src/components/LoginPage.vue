@@ -173,7 +173,7 @@ export default {
 
       try {
         const response = await axios.post(
-          "http://localhost:7777/auth/signin",
+          "http://localhost:7777/api/v1/auth/signin",
           {
             username: this.username,
             password: this.password,

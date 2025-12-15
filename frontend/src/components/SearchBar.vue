@@ -41,7 +41,7 @@ export default {
         return;
       }
       try {
-        const response = await axios.get(`http://localhost:7777/api/v1/beer/beers/search?`, {
+        const response = await axios.get(`http://localhost:7777/api/v1/beer/search-index?`, {
           params: { name: this.query }, withCredentials: true
         });
         this.results = response.data;
