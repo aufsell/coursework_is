@@ -61,7 +61,7 @@ export default {
 
       try {
         const response = await axios.get(
-          `http://localhost:7777/api/v1/favourite/${this.profileUserId}`,
+          `http://localhost:7777/api/v1/me/favourite/${this.profileUserId}`,
           { withCredentials: true }
         );
         this.beers = toRaw(response.data).map((beer) => ({

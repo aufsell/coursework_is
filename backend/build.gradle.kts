@@ -48,6 +48,7 @@ dependencies {
 	implementation("io.jsonwebtoken:jjwt-jackson:0.11.5")
 	implementation("org.flywaydb:flyway-core:11.19.0")
 	implementation("org.flywaydb:flyway-database-postgresql:11.19.0")
+	implementation("org.springframework.kafka:spring-kafka")
 
 //	implementation("org.springframework.boot:spring-boot-starter-data-redis")
 //	implementation("org.springframework.session:spring-session-data-redis")
