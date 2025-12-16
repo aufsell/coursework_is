@@ -20,9 +20,9 @@ WHERE ibu BETWEEN 20 AND 55
   AND price BETWEEN 100 AND 400;
 
 
-SELECT b.*
-FROM favourite_beer fb
-         JOIN beers b ON fb.beer_id = b.id
-WHERE fb.user_id = 28496;
+-- SELECT b.*
+-- FROM favourite_beer fb
+--          JOIN beers b ON fb.beer_id = b.id
+-- WHERE fb.user_id = 28496;
 
 
