@@ -14,7 +14,7 @@ services:
     networks:
       - minio-network
   postgres:
-    image: 'postgres:latest'
+    image: 'postgres:16.0'
     environment:
       - 'POSTGRES_DB=pipivo_db'
       - 'POSTGRES_PASSWORD=123'

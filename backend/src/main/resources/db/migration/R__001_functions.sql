@@ -423,15 +423,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-
-
-
-
-
-
-
-
-
 CREATE OR REPLACE TRIGGER trigger_update_recommendations
     AFTER UPDATE OR INSERT ON tasteprofiles
     FOR EACH ROW
@@ -442,4 +433,3 @@ CREATE TRIGGER update_average_rating_trigger
     AFTER INSERT ON reviews
     FOR EACH ROW
 EXECUTE FUNCTION trigger_update_average_rating();
-
