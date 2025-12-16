@@ -262,7 +262,7 @@ export default {
     const checkFavouriteStatus = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:7777/api/v1/favourite/${props.beerId}/isFavourite`,
+          `http://localhost:7777/api/v1/me/favourite/${props.beerId}/isFavourite`,
           { withCredentials: true }
         );
         isFavourite.value = response.data;
@@ -275,13 +275,14 @@ export default {
       try {
         if (isFavourite.value) {
           await axios.post(
-            `http://localhost:7777/api/v1/favourite/remove/${props.beerId}`,
+            `http://localhost:7777/api/v1/me/favourite/remove/${props.beerId}`,
             {},
             { withCredentials: true }
           );
         } else {
+          console.log("тут")
           await axios.post(
-            `http://localhost:7777/api/v1/favourite/add/${props.beerId}`,
+            `http://localhost:7777/api/v1/me/favourite/add/${props.beerId}`,
             {},
             { withCredentials: true }
           );
@@ -315,7 +316,7 @@ export default {
         }
 
         await axios.post(
-          `http://localhost:7777/api/v1/reviews/${props.beerId}`,
+          `http://localhost:7777/api/v1/beers/${props.beerId}/reviews`,
           newReview.value,
           { withCredentials: true }
         );
