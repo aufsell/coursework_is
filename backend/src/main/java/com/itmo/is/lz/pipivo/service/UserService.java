@@ -1,5 +1,7 @@
 package com.itmo.is.lz.pipivo.service;
 
+import com.itmo.is.lz.pipivo.events.TasteProfileEvent;
+import com.itmo.is.lz.pipivo.events.TasteProfileEventPublisher;
 import com.itmo.is.lz.pipivo.model.User;
 import com.itmo.is.lz.pipivo.repository.FavouriteBeerRepository;
 import com.itmo.is.lz.pipivo.repository.TasteProfileRepository;
@@ -23,6 +25,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final FavouriteBeerRepository favouriteBeerRepository;
     private final TasteProfileService tasteProfileService;
+    private final TasteProfileEventPublisher tasteProfileEventPublisher;
 
     public UserDetailsService userDetailsService() {
         return this::loadUserByUsername;
@@ -63,7 +66,7 @@ public class UserService {
         }
 
         favouriteBeerRepository.addBeerToFavourites(user.getId(), beerId);
-        tasteProfileService.updateTasteProfileByFavourite(user.getId(), beerId);
+        tasteProfileEventPublisher.publish(TasteProfileEvent.liked(user.getId(), beerId));
         log.info("Add beer to favourites successful. userId={}, beerId={}", user.getId(), beerId);
 
     }

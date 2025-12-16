@@ -103,4 +103,8 @@ public class TasteProfileService {
 
     }
 
+    public void onBeerUnliked(Long userId, Long beerId) {
+    }
+
+
 }
